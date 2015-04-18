@@ -13,6 +13,7 @@ var Block = function(parent)
 	this.setSize(640, 64);
 	this.spawn("Default");
 	this.setTechnique("Diffuse");
+	this._width = 16;
 }
 
 _.inherit(Block, Quad);
@@ -25,28 +26,38 @@ _.extend(Block.prototype, {
 
 		var size = Vector2D.mul(Vector2D.multiply(player.size(), player.scale()), 0.5);
 		var cell = Vector2D.mul(this._cellSize, 0.5);
-		var angle = 0;
+		var xx, yy;
 
-		if (pos.x + size.x >= block.x - cell.x && pos.y + size.y >= block.y - cell.y && pos.x - size.x <= block.x + cell.x && pos.y - size.y <= block.y + cell.y)
+		if (pos.x + size.x > block.x - cell.x && pos.y + size.y > block.y - cell.y && pos.x - size.x < block.x + cell.x && pos.y - size.y < block.y + cell.y)
 		{
-			angle = Math.atan2(block.y - pos.y, block.x - pos.x) + Math.PI / 4;
-
-			if (angle >= 0 && angle < Math.PI / 2)
+			xx = pos.x + size.x;
+			if (xx > block.x - cell.x && xx < block.x - cell.x + this._width)
 			{
 				return Collision.Left;
 			}
-			else if (angle >= Math.PI / 2 && angle < Math.PI)
-			{
-				return Collision.Top;
-			}
-			else if (angle < 0 && angle < (Math.PI / 2) * -1 || angle > Math.PI)
+
+			xx = pos.x - size.x;
+
+			if (xx < block.x + cell.x && xx > block.x + cell.x - this._width)
 			{
 				return Collision.Right;
 			}
-			else
+
+			yy = pos.y + size.y;
+
+			if (yy > block.y - cell.y && yy < block.y - cell.y + this._width)
+			{
+				return Collision.Top;
+			}
+
+			yy = pos.y - size.y;
+
+			if (yy < block.y + cell.y && yy > block.y + cell.y - this._width)
 			{
 				return Collision.Bottom;
 			}
 		}
+
+		return false;
 	}
 })
