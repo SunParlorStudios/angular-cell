@@ -25,6 +25,7 @@ Game.Initialise = function()
 
 	RenderSettings.setVsync(true);
 	RenderSettings.setResolution(1280, 720);
+	RenderSettings.setInvertY(true);
 
 	Game.camera = new Camera(CameraType.Orthographic);
 	Game.camera.setTranslation(0, 0, 0);
