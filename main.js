@@ -18,6 +18,7 @@ var RenderTargets = RenderTargets || {
 
 Game.Initialise = function()
 {
+	ContentManager.load("effect", "effects/cull_none.effect");
 	RenderTargets.default.setLightingEnabled(false);
 	RenderTargets.default.setTechnique('Diffuse');
 

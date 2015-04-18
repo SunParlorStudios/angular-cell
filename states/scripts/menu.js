@@ -25,6 +25,8 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/paral1.png");
 		ContentManager.load("texture", "textures/paral2.png");
 		ContentManager.load("texture", "textures/paral3.png");
+		ContentManager.load("texture", "textures/test_sheet.png");
+		ContentManager.load("anim", "test.anim");
 		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.1);
 
 		this._blocks = [];
@@ -33,6 +35,13 @@ _.extend(Menu.prototype, {
 
 		this._player = new Player();
 		this._player.initialise();
+		this._player.setSize(128, 128);
+
+		this._player.setDiffuseMap("textures/test_sheet.png");
+		anim = new SpriteAnimation("test.anim", "textures/test_sheet.png");
+		this._player.setAnimation(anim);
+		anim.play();
+		anim.setSpeed(4);
 
 		Game.gravity = Vector2D.construct(0, 1);
 		
@@ -42,9 +51,9 @@ _.extend(Menu.prototype, {
 		this._background.setTechnique("Diffuse");
 		this._background.setDiffuseMap("textures/test.png");
 
-		ParallaxManager.add("textures/paral1.png", 1280, 720, 30, 1, false);
-		ParallaxManager.add("textures/paral2.png", 1280, 720, 20, 2, false);
-		ParallaxManager.add("textures/paral3.png", 1280, 720, 10, 3, false);
+		ParallaxManager.add("textures/paral1.png", 1280, 720, 0.2, 1, false);
+		ParallaxManager.add("textures/paral2.png", 1280, 720, 0.1, 2, false);
+		ParallaxManager.add("textures/paral3.png", 1280, 720, 0.05, 3, false);
 	},
 
 	update: function (dt)

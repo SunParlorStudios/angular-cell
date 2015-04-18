@@ -40,13 +40,13 @@ _.extend(ParallaxManager, {
 		layer.quad.spawn("Default");
 		this._layers.push(layer);
 	},
-	move: function (direction)
+	move: function (speed)
 	{
 		var layer;
 		for (var i = 0; i < this._layers.length; i++)
 		{
 			layer = this._layers[i];
-			layer.quad.translateBy(direction == ParallaxDirection.Left ? -layer.speed : layer.speed, 0, 0);
+			layer.quad.translateBy((layer.speed * speed) * -1, 0, 0);
 		}
 	}
 });
