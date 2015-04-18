@@ -49,6 +49,15 @@ _.extend(Ray, {
 	   		return false;
 	   	}
 
-	   	return true;
+	   	return d;
+	},
+
+	getIntersectionPoint: function(ray, d)
+	{
+		return {
+			x: ray.origin.x + ray.direction.x * d, 
+			y: ray.origin.y + ray.direction.y * d,
+			z: ray.origin.z + ray.direction.z * d
+		}
 	}
 });

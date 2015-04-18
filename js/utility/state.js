@@ -7,17 +7,7 @@
  */
 function State (data)
 {
-	/** 
-	 * The world of this state
-	 *
-	 * @public
-	 * @property module:State#world
-	 * @author Riko Ophorst
-	 */
-	this.world = new World();
-
-	if (data[0] !== undefined)
-		this.ui = ViewCreator.createView(data[0]);
+	
 }
 
 _.extend(State.prototype, {
@@ -42,7 +32,7 @@ _.extend(State.prototype, {
 	 */
 	show: function ()
 	{
-
+		
 	},
 	
 	/** 
@@ -67,7 +57,7 @@ _.extend(State.prototype, {
 	 */
 	update: function (dt) 
 	{
-		this.world.update(dt);
+		
 	},
 	
 	/** 

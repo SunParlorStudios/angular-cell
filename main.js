@@ -30,7 +30,8 @@ Game.Initialise = function()
 	Game.camera.setTranslation(0, 0, 0);
 
 	StateManager.loadState('states/loader.json');
-	//StateManager.switch('editor');
+	StateManager.loadState('states/menu.json');
+	StateManager.switch('menu');
 }
 
 Game.Update = function(dt)

@@ -13,9 +13,23 @@ var Loader = Loader || function()
 
 _.inherit(Loader, State);
 
+_.extend(Loader, {
+	overwrite: false,
+	override: false
+}, {
+	__loaded: false
+});
+
 _.extend(Loader.prototype, {
 	show: function (data)
 	{
+		if (Loader.__loaded !== true)
+		{
+			ContentManager.load('box', 'loader.box');
+
+			Loader.__loaded = true;
+		}
+
 		Loader._super.show.call(this);
 
 		this.info = data.info;
@@ -25,14 +39,6 @@ _.extend(Loader.prototype, {
 		this.info.resourcesPerFrame = data.info.resourcesPerFrame || 1;
 
 		this.currentResource = 0;
-
-		this.text = new Text();
-		this.text.setText("Loading resources, now at 0%...");
-		this.text.setFont("fonts/arial.ttf");
-		this.text.setFontSize(30);
-		this.text.setAlignment(TextAlignment.Center);
-		this.text.setTranslation(0, 0, 0);
-		this.text.spawn("UI");
 	},
 
 	update: function (dt)
@@ -41,7 +47,7 @@ _.extend(Loader.prototype, {
 
 		if (this.resourcesToLoad[this.currentResource] == undefined)
 		{
-			//StateManager.switch(this.stateName);
+			StateManager.switch(this.stateName);
 			return;
 		}
 
@@ -57,17 +63,17 @@ _.extend(Loader.prototype, {
 
 		var percent = Math.round((this.currentResource / this.resourcesToLoad.length) * 100);
 		Log.Loader('Loader at ' + percent + '%');
-		this.text.setText("Loading resources, now at " + percent + "%...");
+		this.view.loader_text.setText("Loading resources, now at " + percent + "%...");
 	},
 
 	draw: function ()
 	{
-		Game.render(Game.camera, RenderTargets.ui);
+		Loader._super.draw.call(this);
 	},
 
 	leave: function()
 	{
-		this.text.destroy();
+		Loader._super.leave.call(this);
 	}
 });
 
