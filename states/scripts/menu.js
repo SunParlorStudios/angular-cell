@@ -22,6 +22,8 @@ _.extend(Menu.prototype, {
 		Menu._super.show.call(this);
 
 		ContentManager.load("texture", "textures/test.png");
+		ContentManager.load("texture", "textures/test_sheet.png");
+		ContentManager.load("anim", "test.anim");
 		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.1);
 
 		this._blocks = [];
@@ -30,6 +32,13 @@ _.extend(Menu.prototype, {
 
 		this._player = new Player();
 		this._player.initialise();
+		this._player.setSize(128, 128);
+
+		this._player.setDiffuseMap("textures/test_sheet.png");
+		anim = new SpriteAnimation("test.anim", "textures/test_sheet.png");
+		this._player.setAnimation(anim);
+		anim.play();
+		anim.setSpeed(4);
 
 		Game.gravity = Vector2D.construct(0, 1);
 		
