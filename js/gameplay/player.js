@@ -1,4 +1,4 @@
-var Player = function(parent)
+var Player = function(state, parent)
 {
 	Player._super.constructor.call(this, parent);
 	this._velocity = Vector2D.construct(0, 0);
@@ -23,7 +23,7 @@ var Player = function(parent)
 
 	this._deathMax = 1;
 	this._deathTimer = this._deathMax;
-
+	this._state = state;
 	this._dead = false;
 }
 
@@ -105,6 +105,18 @@ _.extend(Player.prototype, {
 
 	move: function(dt)
 	{
+		if (Mouse.isDown(MouseButton.Left) == true)
+		{
+			var p = Mouse.position(MousePosition.Relative);
+			p = Vector2D.add(p, Game.camera.translation());
+
+			var t = this._position;
+			var a = Math.atan2(p.y - t.y, p.x - t.x);
+
+			var proj = new Projectile();
+			proj.initialise(a, t);
+			this._state.addProjectile(proj);
+		}
 		if (Keyboard.isPressed(Key.Q))
 		{
 			this.setRotation(0, 0, 0);
@@ -172,36 +184,33 @@ _.extend(Player.prototype, {
 			this._grounded = false;
 		}
 		
-		if (this._dead == false && this._punchTimer == this._punchMax)
+		if (Keyboard.isDown(Key.A) && this._dead == false && this._punchTimer == this._punchMax)
 		{
-			if (Keyboard.isDown(Key.A))
-			{
-				this._velocity.x -= a;
-			}
-			else if (Keyboard.isDown(Key.D))
-			{
-				this._velocity.x += a;
-			}
-			else if (this._velocity.x !== 0)
-			{
-				if (this._velocity.x > 0)
-				{
-					this._velocity.x -= a * this._friction;
-				}
-				else if (this._velocity.x < 0)
-				{
-					this._velocity.x += a * this._friction;
-				}
-
-				if ((this._previousVelocity.x < 0 && this._velocity.x) > 0 || (this._previousVelocity.x > 0 && this._velocity.x < 0))
-				{
-					this._velocity.x = 0;
-				}
-			}
-
-			this._velocity.x = Math.min(this._velocity.x, this._maxVelocity.x);
-			this._velocity.x = Math.max(this._velocity.x, -this._maxVelocity.x);
+			this._velocity.x -= a;
 		}
+		else if (Keyboard.isDown(Key.D) && this._dead == false && this._punchTimer == this._punchMax)
+		{
+			this._velocity.x += a;
+		}
+		else if (this._velocity.x !== 0)
+		{
+			if (this._velocity.x > 0)
+			{
+				this._velocity.x -= a * this._friction;
+			}
+			else if (this._velocity.x < 0)
+			{
+				this._velocity.x += a * this._friction;
+			}
+
+			if ((this._previousVelocity.x < 0 && this._velocity.x) > 0 || (this._previousVelocity.x > 0 && this._velocity.x < 0))
+			{
+				this._velocity.x = 0;
+			}
+		}
+
+		this._velocity.x = Math.min(this._velocity.x, this._maxVelocity.x);
+		this._velocity.x = Math.max(this._velocity.x, -this._maxVelocity.x);
 
 		this._velocity.y = Math.min(this._velocity.y, this._maxVelocity.y);
 
@@ -235,10 +244,10 @@ _.extend(Player.prototype, {
 		}
 		else
 		{
-			if (Game.camera.zoom() > 1)
+			if (Game.camera.zoom() > 0.75)
 			{
 				var z = Game.camera.zoom() - dt;
-				Game.camera.setZoom(Math.max(z, 1));
+				Game.camera.setZoom(Math.max(z, 0.75));
 			}
 		}
 		var ratio = Math.abs(this._velocity.x) / this._maxVelocity.x;
@@ -268,7 +277,7 @@ _.extend(Player.prototype, {
 
 		wobble = Math.abs(Math.sin(Game.time() * this._wobbleSpeed / 1.5)) * this._wobbleHeight * ratio;
 		
-		this.setTranslation(t.x, t.y + wobble, 2);
+		this.setTranslation(t.x, t.y + wobble, -3);
 	},
 
 	update: function(blocks, dt)

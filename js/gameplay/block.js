@@ -4,22 +4,18 @@ Enum("Collision", [
 	"Top",
 	"Bottom"]);
 
-var xxx = 0;
-var yyy = 0;
-
 var Block = function(parent)
 {
 	Block._super.constructor.call(this, parent);
 
-	this._cellSize = Vector2D.construct(200, 128);
+	this._cellSize = Vector2D.construct(3000, 256);
 	this.setOffset(0.5, 0.5);
-	this.setSize(200, 128);
-	this.setTranslation(200*xxx, 128*yyy);
+	this.setSize(3000, 256);
 	this.spawn("Default");
+	this.setZ(-3);
 	this.setTechnique("Diffuse");
 	this._width = 4;
-	++xxx;
-	++yyy;
+	this.setBlend(0, 0, 0);
 }
 
 _.inherit(Block, Quad);

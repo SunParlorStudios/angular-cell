@@ -22,7 +22,7 @@ Game.Initialise = function()
 	RenderTargets.default.setLightingEnabled(false);
 	RenderTargets.default.setTechnique('Diffuse');
 
-	Window.setName("Angular Cell");
+	Window.setName("Angler Cell");
 	Window.setSize(1280, 720);
 
 	RenderSettings.setVsync(true);

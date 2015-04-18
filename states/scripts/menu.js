@@ -1,5 +1,7 @@
 require("js/gameplay/player");
 require("js/gameplay/block");
+require("js/gameplay/fish_tank");
+require("js/gameplay/projectile");
 
 /** 
  * The menu state
@@ -25,44 +27,74 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/paral1.png");
 		ContentManager.load("texture", "textures/paral2.png");
 		ContentManager.load("texture", "textures/paral3.png");
+		ContentManager.load("texture", "textures/rec.png");
+		ContentManager.load("texture", "textures/Environment/BG_Wall.png");
 		ContentManager.load("texture", "textures/player/player_sheet.png");
+		ContentManager.load("texture", "textures/Environment/BG_Fish_Tank.png");
+		ContentManager.load("texture", "textures/Environment/Fish_Tank.png");
+		ContentManager.load("texture", "textures/Environment/BG_Color.png");
+		ContentManager.load("texture", "textures/starfish.png");
+		ContentManager.load("texture", "textures/ui/crosshair.png");
 		ContentManager.load("anim", "animations/player_walk.anim");
 		ContentManager.load("anim", "animations/player_punch.anim");
 		ContentManager.load("anim", "animations/player_death.anim");
+		ContentManager.load("shader", "shaders/fog.fx");
+		ContentManager.load("effect", "effects/fog.effect");
 		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.3);
 
 		this._blocks = [];
 
 		this._blocks.push(new Block());
-		this._blocks.push(new Block());
-		this._blocks.push(new Block());
-		this._blocks.push(new Block());
-		this._blocks.push(new Block());
-		this._blocks.push(new Block());
-		this._blocks.push(new Block());
-		this._blocks.push(new Block());
 
-		this._player = new Player();
+		this._player = new Player(this);
 		this._player.initialise();
 
 		Game.gravity = Vector2D.construct(0, 5000);
 		
 		this._background = new Quad();
-		this._background.setSize(1280, 720);
+		this._background.setSize(999999, 999999);
 		this._background.setOffset(0.5, 0.5);
 		this._background.setTechnique("Diffuse");
-		this._background.setDiffuseMap("textures/test.png");
+		this._background.setDiffuseMap("textures/Environment/BG_Color.png");
+		this._background.spawn("Default");
+		this._background.setZ(-100);
 
-		ParallaxManager.add("textures/paral1.png", 1280, 720, 0.2, 1, false);
-		ParallaxManager.add("textures/paral2.png", 1280, 720, 0.1, 2, false);
-		ParallaxManager.add("textures/paral3.png", 1280, 720, 0.05, 3, false);
+		this._widget = new Widget();
+		this._widget.setSize(256, 64);
+		this._widget.setDiffuseMap("textures/rec.png");
+		this._widget.spawn("Default");
+		this._widget.setOffset(0.5, 0.5);
+		this._widget.setTranslation(-RenderSettings.resolution().w / 2 + 150, -RenderSettings.resolution().h / 2 + 80);
+
+		this._crosshair = new Widget();
+		this._crosshair.setSize(32, 32);
+		this._crosshair.setDiffuseMap("textures/ui/crosshair.png");
+		this._crosshair.spawn("Default");
+		this._crosshair.setOffset(0.5, 0.5);
+
+		this._fishTank = new FishTank();
+
+		this._projectiles = [];
 	},
 
 	update: function (dt)
 	{
 		Menu._super.update.call(this);
 		this._player.update(this._blocks, dt);
-		RenderTargets.default.setUniform(Uniform.Float, "Flicker", 0.9 + Math.random() * 0.1);
+		RenderTargets.default.setUniform(Uniform.Float, "Flicker", 0.7 + Math.random() * 0.3);
+
+		var p = Mouse.position(MousePosition.Relative);
+		this._crosshair.setTranslation(p.x * 1.05, p.y * 1.05);
+
+		for (var i = 0; i < this._projectiles.length; ++i)
+		{
+			this._projectiles[i].update(dt);
+		}
+	},
+
+	addProjectile: function(proj)
+	{
+		this._projectiles.push(proj);
 	},
 
 	draw: function ()

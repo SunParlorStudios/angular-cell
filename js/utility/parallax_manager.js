@@ -2,7 +2,7 @@ Enum('ParallaxDirection', [
 		'Left',
 		'Right'
 	])
-
+var xxx = 0;
 /**
  * The ParallaxManager which manages the parallax layers
  *
@@ -32,10 +32,11 @@ _.extend(ParallaxManager, {
 		layer.quad = new Quad();
 
 		layer.quad.setDiffuseMap(texture);
-		layer.quad.setSize(1280, 720);
+		layer.quad.setSize(width, height);
 		layer.quad.setOffset(0.5, 0.5);
-		layer.quad.setTranslation(0, 0, 0);
+		layer.quad.setTranslation(++xxx * 100, 0, -depth);
 		layer.quad.setTechnique("Diffuse");
+		layer.quad.setEffect("effects/fog.effect");
 
 		layer.quad.spawn("Default");
 		this._layers.push(layer);
