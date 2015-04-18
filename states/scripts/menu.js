@@ -27,6 +27,8 @@ _.extend(Menu.prototype, {
 
 		this._player = new Player();
 		this._player.initialise();
+
+		Game.gravity = Vector2D.construct(0, 1);
 	},
 
 	update: function (dt)
