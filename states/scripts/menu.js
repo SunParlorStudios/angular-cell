@@ -29,6 +29,17 @@ _.extend(Menu.prototype, {
 		this._blocks = [];
 
 		this._blocks.push(new Block());
+		this._blocks.push(new Block());
+		this._blocks.push(new Block());
+		this._blocks.push(new Block());
+		this._blocks.push(new Block());
+		this._blocks.push(new Block());
+		this._blocks.push(new Block());
+		this._blocks.push(new Block());
+		this._blocks.push(new Block());
+		this._blocks.push(new Block());
+		this._blocks.push(new Block());
+		this._blocks.push(new Block());
 
 		this._player = new Player();
 		this._player.initialise();
@@ -40,7 +51,7 @@ _.extend(Menu.prototype, {
 		anim.play();
 		anim.setSpeed(4);
 
-		Game.gravity = Vector2D.construct(0, 1);
+		Game.gravity = Vector2D.construct(0, 2500);
 		
 		this._background = new Quad();
 		this._background.setSize(1280, 720);

@@ -187,5 +187,13 @@ _.extend(Vector2D, {
 	leftHandNormal: function (v)
 	{
 		return this.construct(v.y, -v.x);
+	},
+
+	lerp: function(v1, v2, t)
+	{
+		return {
+			x: Math.lerp(v1.x, v2.x, t),
+			y: Math.lerp(v1.y, v2.y, t)
+		}
 	}
 });

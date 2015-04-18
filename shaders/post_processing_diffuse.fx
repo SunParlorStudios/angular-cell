@@ -45,7 +45,7 @@ float4 PS(VOut input) : SV_TARGET
     clip((1.0f - coords) - 0.001);
 
     float4 avg = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    float filterSize = 6.0f;
+    float filterSize = 10.0f;
     float count = 0.0f;
 
     float4 col = Target.Sample(Sampler, coords);
@@ -64,8 +64,6 @@ float4 PS(VOut input) : SV_TARGET
     float half_y = input.texcoord.y * 360.0f * 0.5;
     float delta = round(half_y) - half_y;
     float delta_squared = delta * delta;
-    float start = 0.1f;
-    float end = 0.2f;
 
     float gray = (avg.r + avg.g + avg.b) / 3.0f;
     if (gray > 0.3f)

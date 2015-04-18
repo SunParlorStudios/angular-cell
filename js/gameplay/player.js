@@ -1,11 +1,10 @@
 var Player = function(parent)
 {
 	Player._super.constructor.call(this, parent);
-
 	this._velocity = Vector2D.construct(0, 0);
-	this._maxVelocity = Vector2D.construct(10, 10);
+	this._maxVelocity = Vector2D.construct(500, 900);
 	this._position = Vector2D.construct(0, -300);
-	this._jumpHeight = 15;
+	this._jumpHeight = 800;
 	this._margin = 10;
 	this._wobbleSpeed = 20;
 	this._wobbleAngle = 16;
@@ -62,12 +61,12 @@ _.extend(Player.prototype, {
 			break;
 
 			case Collision.Left:
-				this._position.x = t.x - s.x / 2 - size.x / 2;
+				this._position.x = t.x - s.x / 2 - size.x / 2 - this._margin;
 				this._velocity.x = 0;
 			break;
 
 			case Collision.Right:
-				this._position.x = t.x + s.x / 2 + size.x / 2;
+				this._position.x = t.x + s.x / 2 + size.x / 2 + this._margin;
 				this._velocity.x = 0;
 			break;
 		}
@@ -75,7 +74,7 @@ _.extend(Player.prototype, {
 
 	update: function(blocks, dt)
 	{
-		this._velocity = Vector2D.add(this._velocity, Game.gravity);
+		this._velocity = Vector2D.add(this._velocity, Vector2D.mul(Game.gravity, dt));
 
 		if (Keyboard.isDown(Key.D) == true)
 		{
@@ -92,6 +91,7 @@ _.extend(Player.prototype, {
 
 		var collision = undefined;
 		var collisionData;
+
 		for (var i = 0; i < blocks.length; ++i)
 		{
 			for (var p in this._points)
@@ -105,6 +105,11 @@ _.extend(Player.prototype, {
 					};
 					break;
 				}
+			}
+
+			if (collision === true)
+			{
+				break;
 			}
 		}
 
@@ -132,10 +137,44 @@ _.extend(Player.prototype, {
 
 		var moving = this._velocity.x > 0 || this._velocity.x < 0;
 		var wobble = moving ? Math.abs(Math.sin(Game.time() * this._wobbleSpeed / 1.5) * this._wobbleHeight) : 0;
-		Game.camera.setTranslation(this._position.x, this._position.y, 0);
+
+		var ct = Game.camera.translation();
+
+		var dist = Math.distance(ct.x, ct.y, this._position.x, this._position.y);
+
+		if (dist > 32)
+		{
+			var speed = dt * 1440;
+			var r = dist / 720;
+
+			if (Math.abs(this._position.x - ct.x) > 16)
+			{
+				if (ct.x < this._position.x)
+				{
+					Game.camera.translateBy(speed * r, 0, 0, 1);
+				}
+				else if (ct.x > this._position.x)
+				{
+					Game.camera.translateBy(-speed * r, 0, 0, 1);
+				}
+			}
+
+			if (Math.abs(this._position.y - ct.y) > 16)
+			{
+				if (ct.y < this._position.y)
+				{
+					Game.camera.translateBy(0, speed / 6 * r, 0, 1);
+				}
+				else if (ct.y > this._position.y)
+				{
+					Game.camera.translateBy(0, -speed / 6 * r, 0, 1);
+				}
+			}
+		}	
+		
 		this.setTranslation(this._position.x, this._position.y + wobble);
 
-		this._position = Vector2D.add(this._position, this._velocity);
+		this._position = Vector2D.add(this._position, Vector2D.mul(this._velocity, dt));
 
 
 		if (moving)
@@ -150,7 +189,6 @@ _.extend(Player.prototype, {
 		if (this._velocity.y > 0 || this._velocity.y < 0)
 		{
 			anim.stop();
-			anim.setFrame(3);
 			this.rotateBy(0, 0, dt * 20 * this.scale().x);
 			this._grounded = false;
 		}
@@ -164,6 +202,7 @@ _.extend(Player.prototype, {
 			else
 			{
 				anim.stop();
+				this.setRotation(0, 0, 0);
 			}
 		}
 
