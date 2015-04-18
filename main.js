@@ -1,6 +1,7 @@
 require("js/lib/bottom_line");
 require("js/utility/broadcaster");
 require("js/utility/state_manager");
+require("js/utility/parallax_manager");
 require("js/utility/math_extension");
 require("js/utility/weighted_collection");
 require("js/utility/json");

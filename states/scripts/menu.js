@@ -39,6 +39,8 @@ _.extend(Menu.prototype, {
 		this._background.setTechnique("Diffuse");
 		this._background.spawn("Default");
 		this._background.setDiffuseMap("textures/test.png");
+
+		
 	},
 
 	update: function (dt)
