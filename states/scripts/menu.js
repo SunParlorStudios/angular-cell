@@ -1,4 +1,5 @@
 require("js/gameplay/player");
+require("js/gameplay/enemy");
 require("js/gameplay/block");
 
 /** 
@@ -26,9 +27,13 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/paral2.png");
 		ContentManager.load("texture", "textures/paral3.png");
 		ContentManager.load("texture", "textures/player/player_sheet.png");
+		ContentManager.load("texture", "textures/henchman/henchman_sheet.png");
 		ContentManager.load("anim", "animations/player_walk.anim");
 		ContentManager.load("anim", "animations/player_punch.anim");
 		ContentManager.load("anim", "animations/player_death.anim");
+		ContentManager.load("anim", "animations/henchman_walk.anim");
+		ContentManager.load("anim", "animations/henchman_idle.anim");
+		ContentManager.load("anim", "animations/henchman_attack.anim");
 		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.3);
 
 		this._blocks = [];
@@ -56,12 +61,15 @@ _.extend(Menu.prototype, {
 		ParallaxManager.add("textures/paral1.png", 1280, 720, 0.2, 1, false);
 		ParallaxManager.add("textures/paral2.png", 1280, 720, 0.1, 2, false);
 		ParallaxManager.add("textures/paral3.png", 1280, 720, 0.05, 3, false);
+
+		this._enemy = new Enemy();
 	},
 
 	update: function (dt)
 	{
 		Menu._super.update.call(this);
 		this._player.update(this._blocks, dt);
+		this._enemy.update(this._player, this._blocks, dt);
 		RenderTargets.default.setUniform(Uniform.Float, "Flicker", 0.9 + Math.random() * 0.1);
 	},
 

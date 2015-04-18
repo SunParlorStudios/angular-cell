@@ -25,6 +25,8 @@ var Player = function(parent)
 	this._deathTimer = this._deathMax;
 
 	this._dead = false;
+
+	this._health = 100;
 }
 
 _.inherit(Player, Quad);
@@ -269,6 +271,44 @@ _.extend(Player.prototype, {
 		wobble = Math.abs(Math.sin(Game.time() * this._wobbleSpeed / 1.5)) * this._wobbleHeight * ratio;
 		
 		this.setTranslation(t.x, t.y + wobble, 2);
+	},
+
+	hurt: function (damage, source)
+	{
+		this._health -= damage;
+
+		if (this._health <= 0)
+		{
+			this.setRotation(0, 0, 0);
+			this._camPos = Game.camera.translation();
+			this._dead = true;
+			this.setAnimation(this._deathAnimation);
+			this._deathAnimation.stop();
+			this._deathAnimation.setFrame(0);
+			this._deathAnimation.play();
+			this._deathTimer = 0;
+			this._velocity = {
+				x: -1200,
+				y: -800
+			}
+		}
+		else
+		{
+			if (source.position().x > this._position.x)
+			{
+				this._velocity = {
+					x: -600,
+					y: -700
+				};
+			}
+			else
+			{
+				this._velocity = {
+					x: 600,
+					y: -700
+				};
+			}
+		}
 	},
 
 	update: function(blocks, dt)
