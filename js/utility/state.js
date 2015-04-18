@@ -54,7 +54,7 @@ _.extend(State.prototype, {
 	 */
 	leave: function ()
 	{
-
+		RenderTargets.default.clear();
 	},
 	
 	/** 
@@ -91,7 +91,7 @@ _.extend(State.prototype, {
 	 */
 	draw: function (dt) 
 	{
-
+		Game.render(Game.camera, RenderTargets.default);
 	},
 	
 	/** 

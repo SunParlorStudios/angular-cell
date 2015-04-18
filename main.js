@@ -13,44 +13,24 @@ require("js/ui/button");
 
 var RenderTargets = RenderTargets || {
 	default: new RenderTarget("Default"),
-	normals: new RenderTarget("Normals"),
-	lighting: new RenderTarget("Lighting"),
-	shore: new RenderTarget("Shore"),
-	water: new RenderTarget("Water"),
-	ui: new RenderTarget("UI")
 }
 
 Game.Initialise = function()
 {
+	RenderTargets.default.setLightingEnabled(false);
+	RenderTargets.default.setTechnique('Diffuse');
 
-	RenderTargets.shore.setClearAlbedo(false);
-
-	RenderTargets.default.setClearDepth(true);
-	RenderTargets.default.setLightingEnabled(true);
-	RenderTargets.default.addMultiTarget(RenderTargets.normals);
-	RenderTargets.default.addMultiTarget(RenderTargets.lighting);
-	RenderTargets.default.addMultiTarget(RenderTargets.shore);
-
-	RenderTargets.water.setClearDepth(false);
-	RenderTargets.water.setLightingEnabled(false);
-	RenderTargets.water.addMultiTarget(RenderTargets.shore);
-
-	RenderTargets.ui.setClearDepth(true);
-	RenderTargets.ui.setLightingEnabled(false);
-	RenderTargets.ui.setTechnique("Diffuse");
-
-	Window.setName("Project Glazen Deur");
+	Window.setName("Angular Cell");
 	Window.setSize(1280, 720);
 
 	RenderSettings.setVsync(true);
 	RenderSettings.setResolution(1280, 720);
 
-	Game.camera = new Camera(CameraType.Perspective);
+	Game.camera = new Camera(CameraType.Orthographic);
 	Game.camera.setTranslation(0, 0, 0);
 
 	StateManager.loadState('states/loader.json');
-	StateManager.loadState('states/editor.json');
-	StateManager.switch('editor');
+	//StateManager.switch('editor');
 }
 
 Game.Update = function(dt)
@@ -66,8 +46,6 @@ Game.Draw = function(dt)
 Game.Shutdown = function()
 {
 	RenderTargets.default.clear();
-	RenderTargets.water.clear();
-	RenderTargets.ui.clear();
 	StateManager.shutdown();
 }
 
