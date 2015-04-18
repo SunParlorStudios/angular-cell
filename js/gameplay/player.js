@@ -140,13 +140,14 @@ _.extend(Player.prototype, {
 				this.setAnimation(this._punchAnimation);
 				this._punchAnimation.play();
 				this._punchTimer = 0;
+				this._velocity.x = 50;
+				this._velocity.y = -900;
 			}
 
 			if (this._punchTimer < this._punchMax)
 			{
 				this._punchTimer += dt;
 				this._punchTimer = Math.min(this._punchTimer, this._punchMax);
-				return;
 			}
 			else
 			{
@@ -171,7 +172,7 @@ _.extend(Player.prototype, {
 			this._grounded = false;
 		}
 		
-		if (this._dead == false)
+		if (this._dead == false && this._punchTimer == this._punchMax)
 		{
 			if (Keyboard.isDown(Key.A))
 			{
@@ -229,6 +230,7 @@ _.extend(Player.prototype, {
 		if (this._punchTimer < this._punchMax)
 		{
 			Game.camera.setZoom(Math.lerp(1, 1.2, this._punchTimer / this._punchMax));
+			this.setTranslation(t.x, t.y);
 			return;
 		}
 		else
@@ -242,7 +244,7 @@ _.extend(Player.prototype, {
 		var ratio = Math.abs(this._velocity.x) / this._maxVelocity.x;
 		this._walkAnimation.setSpeed(ratio * this._frameRate);
 		ParallaxManager.move((this._velocity.x / this._maxVelocity.x) * this._parallaxSpeed);
-		if (ratio < 0.1)
+		if (ratio < 0.025)
 		{
 			this._walkAnimation.setFrame(0);
 			this._walkAnimation.stop();
