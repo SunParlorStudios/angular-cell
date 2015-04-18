@@ -1,4 +1,5 @@
 require("js/gameplay/player");
+require("js/gameplay/enemy");
 require("js/gameplay/block");
 require("js/gameplay/fish_tank");
 require("js/gameplay/projectile");
@@ -40,6 +41,12 @@ _.extend(Menu.prototype, {
 		ContentManager.load("anim", "animations/player_death.anim");
 		ContentManager.load("shader", "shaders/fog.fx");
 		ContentManager.load("effect", "effects/fog.effect");
+
+		ContentManager.load("texture", "textures/henchman/henchman_sheet.png");
+		ContentManager.load("anim", "animations/henchman_walk.anim");
+		ContentManager.load("anim", "animations/henchman_idle.anim");
+		ContentManager.load("anim", "animations/henchman_attack.anim");
+
 		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.3);
 
 		this._blocks = [];
@@ -75,14 +82,14 @@ _.extend(Menu.prototype, {
 		this._fishTank = new FishTank();
 
 		this._projectiles = [];
+		this._enemy = new Enemy();
 	},
 
 	update: function (dt)
 	{
 		Menu._super.update.call(this);
 		this._player.update(this._blocks, dt);
-		RenderTargets.default.setUniform(Uniform.Float, "Flicker", 0.7 + Math.random() * 0.3);
-
+		
 		var p = Mouse.position(MousePosition.Relative);
 		this._crosshair.setTranslation(p.x * 1.05, p.y * 1.05);
 
@@ -90,6 +97,9 @@ _.extend(Menu.prototype, {
 		{
 			this._projectiles[i].update(dt);
 		}
+
+		this._enemy.update(this._player, this._blocks, dt);
+		RenderTargets.default.setUniform(Uniform.Float, "Flicker", 0.9 + Math.random() * 0.1);
 	},
 
 	addProjectile: function(proj)
