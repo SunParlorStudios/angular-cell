@@ -25,9 +25,9 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/paral1.png");
 		ContentManager.load("texture", "textures/paral2.png");
 		ContentManager.load("texture", "textures/paral3.png");
-		ContentManager.load("texture", "textures/test_sheet.png");
-		ContentManager.load("anim", "test.anim");
-		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.1);
+		ContentManager.load("texture", "textures/player/player_sheet.png");
+		ContentManager.load("anim", "animations/player.anim");
+		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.3);
 
 		this._blocks = [];
 
@@ -39,22 +39,11 @@ _.extend(Menu.prototype, {
 		this._blocks.push(new Block());
 		this._blocks.push(new Block());
 		this._blocks.push(new Block());
-		this._blocks.push(new Block());
-		this._blocks.push(new Block());
-		this._blocks.push(new Block());
-		this._blocks.push(new Block());
 
 		this._player = new Player();
 		this._player.initialise();
-		this._player.setSize(128, 128);
 
-		this._player.setDiffuseMap("textures/test_sheet.png");
-		anim = new SpriteAnimation("test.anim", "textures/test_sheet.png");
-		this._player.setAnimation(anim);
-		anim.play();
-		anim.setSpeed(4);
-
-		Game.gravity = Vector2D.construct(0, 2500);
+		Game.gravity = Vector2D.construct(0, 4000);
 		
 		this._background = new Quad();
 		this._background.setSize(1280, 720);
@@ -71,7 +60,7 @@ _.extend(Menu.prototype, {
 	{
 		Menu._super.update.call(this);
 		this._player.update(this._blocks, dt);
-		RenderTargets.default.setUniform(Uniform.Float, "Flicker", 0.95 + Math.random() * 0.05);
+		RenderTargets.default.setUniform(Uniform.Float, "Flicker", 0.9 + Math.random() * 0.1);
 	},
 
 	draw: function ()
