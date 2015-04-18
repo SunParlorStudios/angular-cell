@@ -176,6 +176,10 @@ _.extend(Player.prototype, {
 
 		this._position = Vector2D.add(this._position, Vector2D.mul(this._velocity, dt));
 
+		if (this._velocity.x != 0)
+		{
+			ParallaxManager.move(this._velocity.x);
+		}
 
 		if (moving)
 		{
