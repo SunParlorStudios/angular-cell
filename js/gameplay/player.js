@@ -5,7 +5,7 @@ var Player = function(parent)
 	this._speed = 50;
 	this._velocity = Vector2D.construct(0, 0);
 	this._maxVelocity = Vector2D.construct(10, 10);
-	this._position = Vector2D.construct(0, 0);
+	this._position = Vector2D.construct(0, -50);
 
 	this._friction = 0.99;
 }
@@ -20,7 +20,7 @@ _.extend(Player.prototype, {
 		this.spawn("Default");
 		this.setTechnique("Diffuse");
 		this.setOffset(0.5, 0.5);
-		this._position.y = -10;
+		this._position.y = -500;
 	},
 
 	position: function()
@@ -30,28 +30,29 @@ _.extend(Player.prototype, {
 
 	handleCollision: function (block, collisionSide)
 	{
-		this._grounded = false;
-
-		switch (collisionSide)
+		var s = this.size();
+		var bs = block.size();
+		var bp = block.translation();
+		switch(collisionSide)
 		{
-			case Collision.Top:
-				this._position.y = block.translation().y - block.size().y;
-				this._grounded = true;
+			case Collision.Left:
+				this._position.x = bp.x - bs.x / 2.0 - s.x / 2;
+				this._velocity.x = 0;
 				break;
 			case Collision.Right:
-				this._position.x = block.translation().x + block.size().x;
-				this._velocity.x *= -this._friction;
+				this._position.x = bp.x + bs.x / 2.0 + s.x / 2;
+				this._velocity.x = 0;
+				break;
+			case Collision.Top:
+				this._position.y = bp.y - bs.y / 2.0 - s.y / 2;
+				this._velocity.y = 0;
+				this._grounded = true;
 				break;
 			case Collision.Bottom:
-				this._position.y = block.translation().y + block.size().y;
-				break;
-			case Collision.Left:
-				this._position.x = block.translation().x - block.size().x;
-				this._velocity.x *= -this._friction;
+				this._position.y = bp.y + bs.y / 2.0 - s.y / 2;
+				this._velocity.y = 0;
 				break;
 		}
-
-		Vector2D.mul(this._velocity, this._friction);
 	},
 
 	handleInput: function ()
@@ -61,28 +62,27 @@ _.extend(Player.prototype, {
 			this._velocity.y -= this._speed;
 		}
 
-		if (Keyboard.isPressed(Key.A))
+		if (Keyboard.isDown(Key.A))
 		{
 			this._velocity.x -= this._speed;
 		}
-
-		if (Keyboard.isPressed(Key.S))
+		else if (!Keyboard.isDown(Key.D))
 		{
-			this._velocity.y += this._speed;
+			this._velocity.x = 0;
 		}
 
-		if (Keyboard.isPressed(Key.D))
+		if (Keyboard.isDown(Key.D))
 		{
 			this._velocity.x += this._speed;
+		}
+		else if (!Keyboard.isDown(Key.A))
+		{
+			this._velocity.x = 0;
 		}
 	},
 
 	update: function(blocks, dt)
 	{
-		this._velocity = Vector2D.add(this._velocity, Game.gravity);
-
-		this.handleInput();
-
 		if (this._velocity.x > this._maxVelocity.x)
 			this._velocity.x = this._maxVelocity.x;
 
@@ -102,7 +102,7 @@ _.extend(Player.prototype, {
 		{
 			collision = blocks[i].checkCollision(this);
 
-			if (collision !== undefined)
+			if (collision !== false)
 			{
 				this.handleCollision(blocks[i], collision);
 				break;
@@ -111,6 +111,10 @@ _.extend(Player.prototype, {
 
 		if (!collision)
 			this._grounded = false;
+
+		this._velocity = Vector2D.add(this._velocity, Game.gravity);
+
+		this.handleInput();
 
 		this.setTranslation(this._position.x, this._position.y);
 	}
