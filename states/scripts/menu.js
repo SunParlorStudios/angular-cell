@@ -26,7 +26,9 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/paral2.png");
 		ContentManager.load("texture", "textures/paral3.png");
 		ContentManager.load("texture", "textures/player/player_sheet.png");
-		ContentManager.load("anim", "animations/player.anim");
+		ContentManager.load("anim", "animations/player_walk.anim");
+		ContentManager.load("anim", "animations/player_punch.anim");
+		ContentManager.load("anim", "animations/player_death.anim");
 		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.3);
 
 		this._blocks = [];
@@ -43,7 +45,7 @@ _.extend(Menu.prototype, {
 		this._player = new Player();
 		this._player.initialise();
 
-		Game.gravity = Vector2D.construct(0, 4000);
+		Game.gravity = Vector2D.construct(0, 5000);
 		
 		this._background = new Quad();
 		this._background.setSize(1280, 720);
