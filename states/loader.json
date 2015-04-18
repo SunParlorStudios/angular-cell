@@ -1,0 +1,15 @@
+{
+	"name": "loader",
+
+	"entities": [
+	
+	],
+
+	"loader": false,
+
+	"scripts": {
+		"path": "states/scripts/loader",
+		"ui": "ui/cocosstudio/loader.json",
+		"class": "Loader"
+	}
+}

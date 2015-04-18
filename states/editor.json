@@ -1,0 +1,25 @@
+{
+	"name": "editor",
+
+	"entities": [
+
+	],
+
+	"loader": {
+		"resources": [
+			[ "shader", "shaders/water.fx" ]
+		],
+		"info": {
+			"resourcesPerFrame": 1,
+			"displayName": "WE B LOADIN' THE MENU SCREENIO"
+		}
+	},
+
+	"scripts": {
+		"path": "states/scripts/editor",
+		"ui": "ui/cocosstudio/loader.json",
+		"class": "EditorState"
+	},
+
+	"autoStart": false
+}
