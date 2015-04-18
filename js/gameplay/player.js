@@ -1,4 +1,4 @@
-var Player = function(state, parent)
+var Player = function(map, parent)
 {
 	Player._super.constructor.call(this, parent);
 	this._velocity = Vector2D.construct(0, 0);
@@ -23,7 +23,7 @@ var Player = function(state, parent)
 
 	this._deathMax = 1;
 	this._deathTimer = this._deathMax;
-	this._state = state;
+	this._map = map;
 	this._dead = false;
 
 	this._health = 100;
@@ -47,7 +47,7 @@ _.extend(Player.prototype, {
 		
 		this.setAnimation(this._walkAnimation);
 		this._walkAnimation.play();
-		this._walkAnimation.setSpeed(4);
+		this._walkAnimation.setSpeed(0);
 
 		this._punchAnimation.setSpeed(4);
 		this._deathAnimation.setSpeed(4);
@@ -107,18 +107,6 @@ _.extend(Player.prototype, {
 
 	move: function(dt)
 	{
-		if (Mouse.isDown(MouseButton.Left) == true)
-		{
-			var p = Mouse.position(MousePosition.Relative);
-			p = Vector2D.add(p, Game.camera.translation());
-
-			var t = this._position;
-			var a = Math.atan2(p.y - t.y, p.x - t.x);
-
-			var proj = new Projectile();
-			proj.initialise(a, t);
-			this._state.addProjectile(proj);
-		}
 		if (Keyboard.isPressed(Key.Q))
 		{
 			this.setRotation(0, 0, 0);
