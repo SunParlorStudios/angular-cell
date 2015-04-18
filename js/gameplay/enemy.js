@@ -7,7 +7,7 @@ var Enemy = Enemy || function (parent)
 	this._maxVelocity = Vector2D.construct(800, 2000);
 	this._position = Vector2D.construct(0, -500);
 	this._jumpHeight = 1200;
-	this._margin = 10;
+	this._margin = 9;
 
 	this._size = Vector2D.construct(40, 110);
 	this._friction = 2;
@@ -194,6 +194,6 @@ _.extend(Enemy.prototype, {
 			this.setScale(1, 1);
 		}
 		
-		this.setTranslation(t.x, t.y, 2);
+		this.setTranslation(t.x, t.y + this._margin, 2);
 	}
 });
