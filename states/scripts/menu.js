@@ -22,6 +22,9 @@ _.extend(Menu.prototype, {
 		Menu._super.show.call(this);
 
 		ContentManager.load("texture", "textures/test.png");
+		ContentManager.load("texture", "textures/paral1.png");
+		ContentManager.load("texture", "textures/paral2.png");
+		ContentManager.load("texture", "textures/paral3.png");
 		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.1);
 
 		this._blocks = [];
@@ -37,10 +40,11 @@ _.extend(Menu.prototype, {
 		this._background.setSize(1280, 720);
 		this._background.setOffset(0.5, 0.5);
 		this._background.setTechnique("Diffuse");
-		this._background.spawn("Default");
 		this._background.setDiffuseMap("textures/test.png");
 
-		
+		ParallaxManager.add("textures/paral1.png", 1280, 720, 30, 1, false);
+		ParallaxManager.add("textures/paral2.png", 1280, 720, 20, 2, false);
+		ParallaxManager.add("textures/paral3.png", 1280, 720, 10, 3, false);
 	},
 
 	update: function (dt)

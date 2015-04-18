@@ -16,7 +16,7 @@ _.extend(ParallaxManager, {
 	overwrite: false,
 	override: false
 }, {
-	_layers: [],
+	_layers: []
 });
 
 _.extend(ParallaxManager, {
@@ -29,14 +29,15 @@ _.extend(ParallaxManager, {
 		layer.width = width;
 		layer.height = height;
 		layer.repeating = repeating;
-		layer.quads = new Quad();
+		layer.quad = new Quad();
 
 		layer.quad.setDiffuseMap(texture);
-		layer.quad.setSize(width, height);
-		layer.quad.setOffset(0, 0.5);
-		layer.quad.setTranslation((RenderSettings.resolution().w / 2) * -1, 0, depth);
+		layer.quad.setSize(1280, 720);
+		layer.quad.setOffset(0.5, 0.5);
+		layer.quad.setTranslation(0, 0, 0);
+		layer.quad.setTechnique("Diffuse");
 
-		layer.spawn("Default");
+		layer.quad.spawn("Default");
 		this._layers.push(layer);
 	},
 	move: function (direction)
