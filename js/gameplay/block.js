@@ -30,8 +30,6 @@ _.extend(Block.prototype, {
 		{
 			angle = Math.atan2(block.y - pos.y, block.x - pos.x);
 
-			Log.info(angle);
-
 			if (angle >= 0 && angle < Math.PI / 2)
 			{
 				return "Bottom";
