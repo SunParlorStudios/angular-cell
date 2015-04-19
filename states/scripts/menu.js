@@ -29,12 +29,20 @@ _.extend(Menu.prototype, {
 
 		ContentManager.load("texture", "textures/rec.png");
 		ContentManager.load("texture", "textures/player/player_sheet.png");
+		ContentManager.load("texture", "textures/player/hammer_head.png");
+		ContentManager.load("texture", "textures/player/weapons.png");
+		ContentManager.load("texture", "textures/Environment/BG_Fish_Tank.png");
+		ContentManager.load("texture", "textures/Environment/Fish_Tank.png");
 		ContentManager.load("texture", "textures/Environment/BG_Color.png");
 		ContentManager.load("texture", "textures/starfish.png");
 		ContentManager.load("texture", "textures/ui/crosshair.png");
+		ContentManager.load("texture", "textures/player/hammer_head.png");
 		ContentManager.load("anim", "animations/player_walk.anim");
 		ContentManager.load("anim", "animations/player_punch.anim");
 		ContentManager.load("anim", "animations/player_death.anim");
+		ContentManager.load("anim", "animations/player_attack.anim");
+		ContentManager.load("anim", "animations/player_hurt.anim");
+		ContentManager.load("anim", "animations/weapon_hammer_head.anim");
 		ContentManager.load("shader", "shaders/fog.fx");
 		ContentManager.load("effect", "effects/fog.effect");
 
@@ -42,6 +50,7 @@ _.extend(Menu.prototype, {
 		ContentManager.load("anim", "animations/henchman_walk.anim");
 		ContentManager.load("anim", "animations/henchman_idle.anim");
 		ContentManager.load("anim", "animations/henchman_attack.anim");
+		ContentManager.load("anim", "animations/henchman_death.anim");
 
 		this._worldMap = new WorldMap();
 		this._worldMap.initialise();

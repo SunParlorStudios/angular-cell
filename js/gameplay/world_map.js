@@ -49,6 +49,9 @@ _.extend(WorldMap.prototype, {
 
 		this._player = new Player(this);
 		this._player.initialise();
+
+		this._enemies = [];
+		this._enemies.push(new Enemy());
 	},
 
 	sceneryTextures: function()
@@ -144,7 +147,12 @@ _.extend(WorldMap.prototype, {
 			return;
 		}
 
-		this._player.update(this._blocks, dt);
+		this._player.update(this._blocks, this._enemies, dt);
+
+		for (var i = 0; i < this._enemies.length; i++)
+		{
+			this._enemies[i].update(this._player, this._blocks, dt);
+		}
 	},
 
 	save: function()
