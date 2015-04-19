@@ -191,7 +191,9 @@ _.extend(Enemy.prototype, {
 
 		if (this._dead == true)
 		{
-			this.setTranslation(t.x, t.y);
+			this._deathTimer += dt;
+
+			this.setTranslation(t.x, t.y + this._margin);
 			return;
 		}
 
@@ -213,11 +215,6 @@ _.extend(Enemy.prototype, {
 
 		if (this._hurting)
 		{
-			if (!this._controlsUsedDuringHurt)
-			{
-				//this.setAnimation(this._hurtAnimation);
-			}
-
 			this._hurtTimer += dt;
 			this.setAlpha(Math.abs(Math.sin(this._hurtTimer * 20)));
 
@@ -229,7 +226,7 @@ _.extend(Enemy.prototype, {
 				this.setAnimation(this._walkAnimation);
 			}
 		}
-		
+
 		this.setTranslation(t.x, t.y + this._margin, 2);
 	},
 
@@ -242,7 +239,6 @@ _.extend(Enemy.prototype, {
 			if (this._health <= 0)
 			{
 				this.setRotation(0, 0, 0);
-				this._camPos = Game.camera.translation();
 				this._dead = true;
 				this.setAnimation(this._deathAnimation);
 				this._deathAnimation.stop();
@@ -267,10 +263,6 @@ _.extend(Enemy.prototype, {
 			}
 			else
 			{
-				//this.setAnimation(this._hurtAnimation);
-				//this._hurtAnimation.setSpeed(1);
-				//this._hurtAnimation.play();
-
 				this._attackTimer = this._attackMax;
 
 				this._controlsUsedDuringHurt = false;
@@ -293,5 +285,23 @@ _.extend(Enemy.prototype, {
 				}
 			}
 		}
+	},
+
+	isDead: function ()
+	{
+		if (this._dead)
+		{
+			if (this._deathTimer <= this._deathMax)
+				return false;
+			else
+				return true;
+		}
+
+		return false;
+	},
+
+	removeYourself: function ()
+	{
+		this.destroy();
 	}
 });
