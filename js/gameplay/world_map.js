@@ -121,19 +121,23 @@ _.extend(WorldMap.prototype, {
 
 	update: function(dt)
 	{
+		for (var i = 0; i < this._scenery.length; ++i)
+		{
+			this._scenery[i].update(dt);
+		}
+
 		if (this._editMode == true)
 		{
-			if (Keyboard.isReleased(Key.S))
-			{
-				this.save();
-			}
-			if (Keyboard.isReleased(Key.O))
-			{
-				this.load();
-			}
-
 			if (this._editing == true)
 			{
+				if (Keyboard.isDown(Key.Control) && Keyboard.isPressed(Key.S))
+				{
+					this.save();
+				}
+				if (Keyboard.isDown(Key.Control) && Keyboard.isPressed(Key.O))
+				{
+					this.load();
+				}
 				this._editor.update(this._moveables, dt);
 			}
 			else
@@ -179,10 +183,12 @@ _.extend(WorldMap.prototype, {
 
 		var t, s;
 
+		var moveable;
 		for (var i = 0; i < this._blocks.length; ++i)
 		{
-			t = this._blocks[i].translation();
-			s = this._blocks[i].size();
+			moveable = this._blocks[i];
+			t = moveable.position();
+			s = moveable.size();
 
 			save.blocks.push({
 				x: t.x,
@@ -196,24 +202,42 @@ _.extend(WorldMap.prototype, {
 
 		for (var i = 0; i < this._scenery.length; ++i)
 		{
-			t = this._scenery[i].translation();
-			s = this._scenery[i].size();
+			moveable = this._scenery[i];
+			t = moveable.position();
+			s = moveable.size();
 
 			save.scenery.push({
 				x: t.x,
 				y: t.y,
 				sx: s.x,
 				sy: s.y,
-				texture: this._scenery[i].texture()
+				texture: moveable.texture(),
+				depth: moveable.depth()
 			});
 		}
 
 		var str = JSON.stringify(save);
 		IO.write("json/map.json", str);
+
+		Log.success("Saved the map");
+	},
+
+	clear: function()
+	{
+		for (var i = 0; i < this._moveables.length; ++i)
+		{
+			this._moveables[i].destroy();
+			this._moveables[i].destroyPoints();
+		}
+
+		this._blocks.length = 0;
+		this._scenery.length = 0;
+		this._moveables.length = 0;
 	},
 
 	load: function()
 	{
+		this.clear();
 		if (IO.exists("json/map.json") == false)
 		{
 			return;
@@ -227,16 +251,19 @@ _.extend(WorldMap.prototype, {
 		for (var i = 0; i < json.blocks.length; ++i)
 		{
 			moveable = json.blocks[i];
-			obj = this.createMoveable(moveable.x, moveable.y, MoveableType.Block);
-			obj.setCellSize(moveable.sx, moveable.sy);
+			obj = this.createMoveable(moveable.x === undefined ? 0 : moveable.x, moveable.y === undefined ? 0 : moveable.y, MoveableType.Block);
+			obj.setCellSize(moveable.sx === undefined ? 64 : moveable.sx, moveable.sy === undefined ? 64 : moveable.sy);
 		}
 
 		for (var i = 0; i < json.scenery.length; ++i)
 		{
 			moveable = json.scenery[i];
 			obj = this.createMoveable(moveable.x, moveable.y, MoveableType.Scenery);
-			obj.setCellSize(moveable.sx, moveable.sy);
+			obj.setCellSize(moveable.sx === undefined ? 64 : moveable.sx, moveable.sy === undefined ? 64 : moveable.sy);
 			obj.setTexture(moveable.texture);
+			obj.setDepth(moveable.depth === undefined ? 0 : moveable.depth);
 		}
+
+		Log.success("Loaded the map");
 	}
 });

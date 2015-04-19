@@ -34,6 +34,8 @@ _.extend(Editor.prototype, {
 
 	update: function(moveables, dt)
 	{
+		this._ui.update(this._selected, dt);
+
 		var p = Mouse.position(MousePosition.Relative);
 		p = Vector2D.add(this._cameraPosition, Vector2D.mul(p, 1 / this._zoom));
 
@@ -41,6 +43,7 @@ _.extend(Editor.prototype, {
 		var selected = undefined;
 		var used = false;
 		var using = false;
+		var maxDepth = 0;
 		for (var i = 0; i < moveables.length; ++i)
 		{
 			used = moveables[i].updateDragPoints(p, dt);
@@ -50,12 +53,17 @@ _.extend(Editor.prototype, {
 				using = true;
 			}
 
-			if (moveables[i].inBounds(p) && found == false && !Mouse.isDown(MouseButton.Left))
+			if (moveables[i].inBounds(p) && (found == false || moveables[i].depth() < maxDepth) && !Mouse.isDown(MouseButton.Left))
 			{
 				selected = moveables[i];
-				selected.setBlend(0, 1, 0);
+				maxDepth = selected.depth();
 				found = true;
 			}
+		}
+
+		if (selected !== undefined)
+		{
+			selected.setBlend(0, 1, 0);
 		}
 
 		this._dragPoint = using;
@@ -94,25 +102,34 @@ _.extend(Editor.prototype, {
 		this._zoom = Math.min(this._zoom, 1);
 		this._zoom = Math.max(this._zoom, 0.1);
 
-		if (this._selected === undefined && this._dragPoint == false)
+
+		if (Mouse.isPressed(MouseButton.Middle))
 		{
-			if (Mouse.isPressed(MouseButton.Left))
-			{
-				this._dragging = true;
-			}
-			else if (Mouse.isReleased(MouseButton.Left))
-			{
-				this._dragging = false;
-			}
+			this._dragging = true;
 		}
-		else if (Mouse.isDown(MouseButton.Left) && this._dragPoint == false)
+		else if (Mouse.isReleased(MouseButton.Middle))
+		{
+			this._dragging = false;
+		}
+
+		else if (Mouse.isDown(MouseButton.Left) && this._dragPoint == false && this._selected !== undefined)
 		{
 			if (this._startDrag == false)
 			{
 				this._startDrag = true;
 				this._offset = Vector2D.sub(this._selected.translation(), p);
 			}
-			this._selected.setTranslation(p.x + this._offset.x, p.y + this._offset.y);
+
+			this._selected.setPosition(p.x + this._offset.x, p.y + this._offset.y);
+
+			if (Keyboard.isReleased(Key.Minus))
+			{
+				this._selected.setDepth(this._selected.depth() + 1);
+			}
+			else if (Keyboard.isReleased(Key.Plus))
+			{
+				this._selected.setDepth(this._selected.depth() - 1);
+			}
 		}
 
 		if (this._dragging == true)
@@ -132,6 +149,7 @@ _.extend(Editor.prototype, {
 				if (this._tool == MoveableType.Scenery)
 				{
 					moveable.setTexture(this._ui.selectedTexture());
+					moveable.setDepth(0);
 				}
 			}
 			else

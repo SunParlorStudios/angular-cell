@@ -47,7 +47,7 @@ var Player = function(map, parent)
 	this._weapon.setEffect("effects/cull_none.effect");
 	this._weapon.setTechnique("Diffuse");
 	this._weapon.setOffset(0.5, 0.5);
-	this._weapon.setTranslation(0, -30, -10);
+	this._weapon.setTranslation(0, -30, 99);
 	this._weapon.spawn("Default");
 }
 
@@ -61,6 +61,7 @@ _.extend(Player.prototype, {
 		this.setEffect("effects/cull_none.effect");
 		this.setTechnique("Diffuse");
 		this.setOffset(0.5, 0.5);
+		this.setZ(101);
 
 		this.setDiffuseMap("textures/player/player_sheet.png");
 		this._walkAnimation = new SpriteAnimation("animations/player_walk.anim", "textures/player/player_sheet.png");

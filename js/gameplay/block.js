@@ -15,10 +15,16 @@ _.extend(Block.prototype, {
 		this.setOffset(0.5, 0.5);
 		this.setSize(64, 64);
 		this.spawn("Default");
-		this.setZ(0);
+		this.setZ(10);
 		this.setEffect("effects/cull_none.effect");
 		this.setTechnique("Diffuse");
 		this.setBlend(0, 0, 0);
+		this.setTranslation(this._position.x, this._position.y);
+	},
+
+	setPosition: function(x, y)
+	{
+		this._position = Vector2D.construct(x, y);
 		this.setTranslation(this._position.x, this._position.y);
 	},
 

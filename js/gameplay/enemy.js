@@ -47,6 +47,7 @@ var Enemy = Enemy || function (parent)
 	this._hurtTimer = this._hurtMax;
 
 	this._health = 30;
+	this.setZ(100);
 };
 
 _.inherit(Enemy, Quad);
