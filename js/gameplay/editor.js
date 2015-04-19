@@ -7,6 +7,7 @@ var Editor = Editor || function(map)
 	this._map = map;
 	this._selectedBlock = undefined;
 	this._scaleSpeed = 500;
+	this._dragPoint = false;
 }
 
 _.extend(Editor.prototype, {
@@ -14,6 +15,50 @@ _.extend(Editor.prototype, {
 	{
 		var p = Mouse.position(MousePosition.Relative);
 		p = Vector2D.add(this._cameraPosition, Vector2D.mul(p, 1 / this._zoom));
+
+		var found = false;
+		var selected = undefined;
+		var used = false;
+		var using = false;
+		for (var i = 0; i < blocks.length; ++i)
+		{
+			used = blocks[i].updateDragPoints(p, dt);
+
+			if (used == true)
+			{
+				using = true;
+			}
+
+			if (blocks[i].inBounds(p) && found == false && !Mouse.isDown(MouseButton.Left))
+			{
+				selected = blocks[i];
+				selected.setBlend(0, 1, 0);
+				found = true;
+			}
+		}
+
+		this._dragPoint = using;
+
+		if (!Mouse.isDown(MouseButton.Left))
+		{
+			if (selected !== undefined)
+			{
+				if (this._selected !== undefined && this._selected !== selected)
+				{
+					this._selected.setBlend(0, 0, 0);
+				}
+
+				this._selected = selected;
+			}
+			else
+			{
+				if (this._selected !== undefined)
+				{
+					this._selected.setBlend(0, 0, 0);
+					this._selected = undefined;
+				}
+			}
+		}
 
 		if (Mouse.wheelDown())
 		{
@@ -27,7 +72,7 @@ _.extend(Editor.prototype, {
 		this._zoom = Math.min(this._zoom, 1);
 		this._zoom = Math.max(this._zoom, 0.1);
 
-		if (this._selected === undefined)
+		if (this._selected === undefined && this._dragPoint == false)
 		{
 			if (Mouse.isPressed(MouseButton.Left))
 			{
@@ -38,7 +83,7 @@ _.extend(Editor.prototype, {
 				this._dragging = false;
 			}
 		}
-		else if (Mouse.isDown(MouseButton.Left))
+		else if (Mouse.isDown(MouseButton.Left) && this._dragPoint == false)
 		{
 			this._selected.setTranslation(p.x, p.y);
 		}
@@ -66,78 +111,6 @@ _.extend(Editor.prototype, {
 			}
 		}
 
-		if (!Mouse.isDown(MouseButton.Left))
-		{
-			var found = false;
-			var selected = undefined;
-			for (var i = 0; i < blocks.length; ++i)
-			{
-				if (blocks[i].inBounds(p))
-				{
-					selected = blocks[i];
-					selected.setBlend(0, 1, 0);
-					found = true;
-					break;
-				}
-			}
-
-			if (selected !== undefined)
-			{
-				if (this._selected !== undefined && this._selected !== selected)
-				{
-					this._selected.setBlend(0, 0, 0);
-				}
-
-				this._selected = selected;
-			}
-			else
-			{
-				if (this._selected !== undefined)
-				{
-					this._selected.setBlend(0, 0, 0);
-					this._selected = undefined;
-				}
-			}
-		}
-
-		if (this._selected !== undefined)
-		{
-			var s;
-			var speed = dt * this._scaleSpeed;
-			if (Keyboard.isDown(Key.R))
-			{
-				s = this._selected.cellSize();
-				this._selected.setCellSize(s.x - speed, s.y);
-			}
-			else if (Keyboard.isDown(Key.T))
-			{
-				s = this._selected.cellSize();
-				this._selected.setCellSize(s.x + speed, s.y);
-			}
-
-			if (Keyboard.isDown(Key.F))
-			{
-				s = this._selected.cellSize();
-				this._selected.setCellSize(s.x, s.y - speed);
-			}
-			else if (Keyboard.isDown(Key.G))
-			{
-				s = this._selected.cellSize();
-				this._selected.setCellSize(s.x, s.y  + speed);
-			}
-
-			if (Keyboard.isDown(Key.Y))
-			{
-				s = this._selected.cellSize();
-				this._selected.setCellSize(s.x - speed, s.y - speed);
-			}
-			else if (Keyboard.isDown(Key.U))
-			{
-				s = this._selected.cellSize();
-				this._selected.setCellSize(s.x + speed, s.y + speed);
-			}
-		}
-
 		if (Keyboard.isReleased(Key.E))
 		{
 			this._map.setEditing(false);
@@ -145,6 +118,11 @@ _.extend(Editor.prototype, {
 			{
 				this._selected.setBlend(0, 0, 0);
 				this._selected = undefined;
+			}
+
+			for (var i = 0; i < blocks.length; ++i)
+			{
+				blocks[i].destroyPoints();
 			}
 		}
 	}

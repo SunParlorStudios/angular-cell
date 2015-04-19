@@ -1,26 +1,68 @@
-Enum("Collision", [
-	"Left",
-	"Right",
-	"Top",
-	"Bottom"]);
+require("js/gameplay/drag_point");
 
-var Block = function(x, y, parent)
+var Block = function(x, y, editMode, parent)
 {
 	Block._super.constructor.call(this, parent);
 
 	this._cellSize = Vector2D.construct(64, 64);
-	this.setOffset(0.5, 0.5);
-	this.setSize(64, 64);
-	this.spawn("Default");
-	this.setZ(0);
-	this.setTechnique("Diffuse");
-	this.setBlend(0, 0, 0);
-	this.setTranslation(x, y);
+	this._position = Vector2D.construct(x, y);
+	this._dragPoints = [];
+
+	if (editMode == true)
+	{
+		this.createDragPoints();
+	}
+
+	this.initialise();
 }
 
 _.inherit(Block, Quad);
 
 _.extend(Block.prototype, {
+	createDragPoints: function()
+	{
+		for (var x = -1; x <= 1; ++x)
+		{
+			for (var y = -1; y <= 1; ++y)
+			{
+				if (y == 0 || x == 0)
+				{
+					continue;
+				}
+
+				this._dragPoints.push(new DragPoint(this, Vector2D.construct(x, y)));
+			}
+		}
+	},
+
+	updateDragPoints: function(p, dt)
+	{
+		var used = false;
+		var using = false;
+		for (var i = 0; i < this._dragPoints.length; ++i)
+		{
+			used = this._dragPoints[i].update(p, dt);
+
+			if (used == true)
+			{
+				using = true;
+			}
+		}
+
+		return using;
+	},
+
+	initialise: function()
+	{
+		this.setOffset(0.5, 0.5);
+		this.setSize(64, 64);
+		this.spawn("Default");
+		this.setZ(0);
+		this.setTechnique("Diffuse");
+		this.setBlend(0, 0, 0);
+		this.setTranslation(this._position.x, this._position.y);
+	},
+
 	cellSize: function()
 	{
 		return this._cellSize;
@@ -95,5 +137,21 @@ _.extend(Block.prototype, {
 		}
 
 		return pen;
+	},
+
+	destroyPoints: function()
+	{
+		for (var i = 0; i < this._dragPoints.length; ++i)
+		{
+			this._dragPoints[i].destroy();
+		}
+	},
+
+	spawnPoints: function()
+	{
+		for (var i = 0; i < this._dragPoints.length; ++i)
+		{
+			this._dragPoints[i].spawn("Default");
+		}
 	}
 })

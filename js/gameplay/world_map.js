@@ -56,26 +56,34 @@ _.extend(WorldMap.prototype, {
 
 	createBlock: function(x, y)
 	{
-		this._blocks.push(new Block(x, y));
+		this._blocks.push(new Block(x, y, this._editMode === true));
 	},
 
 	removeBlock: function(block)
 	{
 		block.destroy();
+		block.destroyPoints();
 		this._blocks.splice(this._blocks.indexOf(block), 1);
 	},
 
 	update: function(dt)
 	{
-		if (this._editing == true)
+		if (this._editMode == true)
 		{
-			this._editor.update(this._blocks, dt);
-		}
-		else
-		{
-			if (Keyboard.isReleased(Key.E))
+			if (this._editing == true)
 			{
-				this._editing = true;
+				this._editor.update(this._blocks, dt);
+			}
+			else
+			{
+				if (Keyboard.isReleased(Key.E))
+				{
+					for (var i = 0; i < this._blocks.length; ++i)
+					{
+						this._blocks[i].spawnPoints();
+					}
+					this._editing = true;
+				}
 			}
 		}
 		
