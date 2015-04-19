@@ -20,7 +20,7 @@ var Enemy = Enemy || function (parent)
 
 	this._dead = false;
 
-	this.setSize(194, 256);
+	this.setSize(146, 192);
 	this.spawn("Default");
 	this.setEffect("effects/cull_none.effect");
 	this.setTechnique("Diffuse");
@@ -70,7 +70,7 @@ _.extend(Enemy.prototype, {
 	{
 		this._velocity = Vector2D.add(this._velocity, Vector2D.mul(Game.gravity, Math.min(dt, 0.016)));
 
-		if (this._doJump)
+		if (this._doJump && this._grounded)
 		{
 			this._velocity.y = -this._jumpHeight;
 			this._doJump = !this._doJump;
@@ -126,7 +126,7 @@ _.extend(Enemy.prototype, {
 
 		if (this._velocity.y > 0 || this._velocity.y < 0)
 		{
-			this._grounded = false;
+			//this._grounded = false;
 		}
 		
 		if (this._dead == false && this._punchTimer == this._punchMax)
@@ -179,7 +179,7 @@ _.extend(Enemy.prototype, {
 				this._position.x -= pen.x;
 				this._velocity.x = 0;
 
-				if (Math.distance(target.position().x, target.position().y, this._position.x, this._position.y) > 200 && target.position().y < this._position.y)
+				if (Math.distance(target.position().x, target.position().y, this._position.x, this._position.y) > 200)
 					this._doJump = true;
 			}
 		}
