@@ -16,6 +16,21 @@ var Moveable = Moveable || function(editMode, parent)
 _.inherit(Moveable, Quad);
 
 _.extend(Moveable.prototype, {
+	setDepth: function()
+	{
+
+	},
+
+	depth: function()
+	{
+		return this.translation().z;
+	},
+
+	position: function()
+	{
+		return this._position;
+	},
+
 	createDragPoints: function()
 	{
 		for (var x = -1; x <= 1; ++x)
@@ -63,7 +78,7 @@ _.extend(Moveable.prototype, {
 	inBounds: function(p)
 	{
 		var block = this.translation();
-		var cell = Vector2D.abs(Vector2D.mul(this.size(), 0.5));
+		var cell = Vector2D.abs(Vector2D.mul(Vector2D.multiply(this.size(), this.scale()), 0.5));
 
 		if (p.x > block.x - cell.x && p.y > block.y - cell.y && p.x < block.x + cell.x && p.y < block.y + cell.y)
 		{

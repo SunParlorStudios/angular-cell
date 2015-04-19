@@ -29,11 +29,14 @@ _.extend(DragPoint.prototype, {
 	update: function(p, dt)
 	{
 		var size = this._parent.size();
+		var scale = this._parent.scale();
 
 		var t = Vector2D.construct(
 			this._pos.x * Math.abs(size.x) / 2,
 			this._pos.y * Math.abs(size.y) / 2
 		);
+
+		this.setScale(1 / this._parent.scale().x, 1 / this._parent.scale().y);
 
 		this.setTranslation(t.x, t.y);
 
@@ -67,7 +70,7 @@ _.extend(DragPoint.prototype, {
 				}
 			}
 
-			size = Vector2D.construct(size.x * p.x * this._pos.x, size.y * p.y * this._pos.y);
+			size = Vector2D.construct(size.x * p.x / scale.x * this._pos.x, size.y * p.y / scale.y * this._pos.y);
 			if (size.x != 0 && size.y != 0)
 			{
 				this._parent.setCellSize(size.x, size.y);
@@ -93,7 +96,7 @@ _.extend(DragPoint.prototype, {
 
 	inBounds: function(p)
 	{
-		var t = Vector2D.add(this._parent.translation(), this.translation());
+		var t = Vector2D.add(this._parent.translation(), Vector2D.multiply(this.translation(), this._parent.scale()));
 		var s = this._size * 0.5;
 
 		if (p.x > t.x - s && p.y > t.y - s && p.x < t.x + s && p.y < t.y + s)

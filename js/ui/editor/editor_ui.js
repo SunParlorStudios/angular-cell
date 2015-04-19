@@ -58,6 +58,10 @@ _.extend(EditorUI.prototype, {
 		}
 
 		this._selected = undefined;
+		this._depthText = new Text();
+
+		this._savedText = new Text();
+
 		this.setUI();
 	},
 
@@ -68,7 +72,7 @@ _.extend(EditorUI.prototype, {
 		var half_res = {w: res.w / 2, h: res.h / 2}
 		this._frame.spawn("Default");
 		this._frame.setSize(
-			m.size + m.padding * 2 + 400, 
+			m.size + m.padding * 2 + 300, 
 			(m.size + m.padding * 2) * this._numTools - m.padding);
 		this._frame.setBlend(0, 0, 0);
 
@@ -104,9 +108,24 @@ _.extend(EditorUI.prototype, {
 			widget = this._textureWidgets[i];
 			widget.setUI();
 
-			widget.setTranslation(0, i * 19);
+			widget.setTranslation(0, i * 23);
 			widget.selected = false;
 		}
+
+		this._depthText.setText("Depth ");
+		this._depthText.spawn("Default");
+		this._depthText.setShadowOffset(1, 1);
+
+		this._savedText.setFontSize(64);
+		this._savedText.setText("Saved");
+		this._savedText.spawn("Default");
+		this._savedText.setShadowOffset(2, 2);
+		this._savedText.setShadowColour(0, 0, 0, 0.5);
+
+		this._savedTimer = 0;
+
+		var m = this._savedText.metrics();
+		this._savedText.setOffset(m.w / 2, m.h / 2);
 
 		this._texturePanel.setTranslation(100, 20);
 
@@ -123,6 +142,7 @@ _.extend(EditorUI.prototype, {
 			if (widget == tex)
 			{
 				widget.setSelected();
+				widget.selected = true;
 				continue;
 			}
 
@@ -195,6 +215,44 @@ _.extend(EditorUI.prototype, {
 		for (var i = 0; i < this._tools.length; ++i)
 		{
 			this._tools[i].setActivated(false);
+		}
+
+		this._depthText.setAlpha(0);
+	},
+
+	update: function(selected, dt)
+	{
+		if (Keyboard.isDown(Key.Control) && Keyboard.isPressed(Key.O))
+		{
+			this._savedText.setText("Loaded");
+			this._savedTimer = 0;
+		}
+
+		if (Keyboard.isDown(Key.Control) && Keyboard.isPressed(Key.S))
+		{
+			this._savedText.setText("Saved");
+			this._savedTimer = 0;
+		}
+
+		if (this._savedTimer < 1)
+		{
+			this._savedTimer += dt;
+			this._savedTimer = Math.min(this._savedTimer, 1);
+
+			this._savedText.setAlpha(1 - this._savedTimer);
+		}
+
+		var p = Mouse.position(MousePosition.Relative);
+		this._depthText.setTranslation(p.x, p.y - 32);
+
+		if (selected !== undefined)
+		{
+			this._depthText.setText("Depth " + selected.depth());
+			this._depthText.setAlpha(1);
+		}
+		else if (selected === undefined)
+		{
+			this._depthText.setAlpha(0);
 		}
 	}
 });

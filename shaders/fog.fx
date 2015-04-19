@@ -17,7 +17,7 @@ cbuffer PerObject : register(b1)
 
 cbuffer Uniforms : register(b2)
 {
-
+	float4 Depth;
 }
 
 struct VOut
@@ -33,7 +33,6 @@ struct VOut
 VOut VS(float4 position : POSITION, float4 colour : COLOUR, float2 texcoord : TEXCOORD0, float3 normal : NORMAL, float3 tangent : TANGENT, float3 bitangent : BITANGENT)
 {
 	VOut output;
-	position.y -= 0.5;
 	output.position = mul(position, World);
 	output.position = mul(output.position, View);
 	output.position = mul(output.position, Projection);
@@ -58,7 +57,6 @@ float4 PS(VOut input) : SV_TARGET
 	diffuse.rgb *= input.colour.rgb * Blend;
 	diffuse.a *= Alpha;
 
-	float r = (input.position.z + 0.001) * 80;
-	diffuse.rgb = lerp(diffuse.rgb, float3(0.18, 0.65, 0.33), r);
+	diffuse.rgb = lerp(diffuse.rgb, float3(0.18, 0.65, 0.33), Depth.r);
 	return diffuse;
 }
