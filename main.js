@@ -18,6 +18,9 @@ var RenderTargets = RenderTargets || {
 
 Game.Initialise = function()
 {
+	SoundSystem.addChannelGroup("Channel");
+	ContentManager.load("sound", "music/angler_song.mp3");
+	SoundSystem.play("music/angler_song.mp3", "Channel", true);
 	ContentManager.load("effect", "effects/cull_none.effect");
 	RenderTargets.default.setLightingEnabled(false);
 	RenderTargets.default.setTechnique('Diffuse');

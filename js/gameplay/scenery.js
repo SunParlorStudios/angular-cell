@@ -23,6 +23,7 @@ _.extend(Scenery.prototype, {
 		this.setBlend(1, 1, 1);
 		this.setTranslation(this._position.x, this._position.y);
 		this._texture = undefined;
+		this._rotationSpeed = 0;
 	},
 
 	setPosition: function(x, y)
@@ -64,6 +65,7 @@ _.extend(Scenery.prototype, {
 
 	update: function(dt)
 	{
+		this.rotateBy(0, 0, this._rotationSpeed);
 		var t = Game.camera.translation();
 		var r = this._depth / this._maxDepth;
 

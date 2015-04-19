@@ -340,7 +340,7 @@ _.extend(Player.prototype, {
 		if (dist > this._maxCameraDistance)
 		{
 			var r = dist / this._maxCameraDistance;
-			Game.camera.translateBy((t.x - ct.x) * r * dt * this._camSpeed, (t.y + 5 - ct.y) * r * dt * this._camSpeed, 0, 1);
+			Game.camera.translateBy((t.x - ct.x) * r * dt * this._camSpeed, (t.y - 100 - ct.y) * r * dt * this._camSpeed, 0, 1);
 		}
 
 		if (this._dead == true)

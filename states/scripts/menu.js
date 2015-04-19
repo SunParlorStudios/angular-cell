@@ -46,6 +46,8 @@ _.extend(Menu.prototype, {
 		ContentManager.load("anim", "animations/weapon_hammer_head.anim");
 		ContentManager.load("shader", "shaders/fog.fx");
 		ContentManager.load("effect", "effects/fog.effect");
+		ContentManager.load("shader", "shaders/gradient.fx");
+		ContentManager.load("effect", "effects/gradient.effect");
 
 		ContentManager.load("texture", "textures/henchman/henchman_sheet.png");
 		ContentManager.load("anim", "animations/henchman_walk.anim");

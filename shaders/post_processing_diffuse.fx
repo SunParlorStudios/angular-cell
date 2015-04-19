@@ -81,5 +81,6 @@ float4 PS(VOut input) : SV_TARGET
     col.r *= 0.8f;
 
     col.rgb *= Flicker.x;
+
     return col;
 }
