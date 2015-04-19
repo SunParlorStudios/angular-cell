@@ -11,7 +11,7 @@ var Editor = Editor || function(map)
 }
 
 _.extend(Editor.prototype, {
-	update: function(blocks, dt)
+	update: function(moveables, dt)
 	{
 		var p = Mouse.position(MousePosition.Relative);
 		p = Vector2D.add(this._cameraPosition, Vector2D.mul(p, 1 / this._zoom));
@@ -20,18 +20,18 @@ _.extend(Editor.prototype, {
 		var selected = undefined;
 		var used = false;
 		var using = false;
-		for (var i = 0; i < blocks.length; ++i)
+		for (var i = 0; i < moveables.length; ++i)
 		{
-			used = blocks[i].updateDragPoints(p, dt);
+			used = moveables[i].updateDragPoints(p, dt);
 
 			if (used == true)
 			{
 				using = true;
 			}
 
-			if (blocks[i].inBounds(p) && found == false && !Mouse.isDown(MouseButton.Left))
+			if (moveables[i].inBounds(p) && found == false && !Mouse.isDown(MouseButton.Left))
 			{
-				selected = blocks[i];
+				selected = moveables[i];
 				selected.setBlend(0, 1, 0);
 				found = true;
 			}
@@ -45,7 +45,7 @@ _.extend(Editor.prototype, {
 			{
 				if (this._selected !== undefined && this._selected !== selected)
 				{
-					this._selected.setBlend(0, 0, 0);
+					this._selected.resetBlend()
 				}
 
 				this._selected = selected;
@@ -54,7 +54,7 @@ _.extend(Editor.prototype, {
 			{
 				if (this._selected !== undefined)
 				{
-					this._selected.setBlend(0, 0, 0);
+					this._selected.resetBlend();
 					this._selected = undefined;
 				}
 			}
@@ -102,11 +102,11 @@ _.extend(Editor.prototype, {
 		{
 			if (this._selected === undefined)
 			{
-				this._map.createBlock(p.x, p.y);
+				this._map.createMoveable(p.x, p.y, MoveableType.Block);
 			}
 			else
 			{
-				this._map.removeBlock(this._selected);
+				this._map.removeMoveable(this._selected);
 				this._selected = undefined;
 			}
 		}
@@ -116,13 +116,13 @@ _.extend(Editor.prototype, {
 			this._map.setEditing(false);
 			if (this._selected !== undefined)
 			{
-				this._selected.setBlend(0, 0, 0);
+				this._selected.resetBlend();
 				this._selected = undefined;
 			}
 
-			for (var i = 0; i < blocks.length; ++i)
+			for (var i = 0; i < moveables.length; ++i)
 			{
-				blocks[i].destroyPoints();
+				moveables[i].destroyPoints();
 			}
 		}
 	}

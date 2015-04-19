@@ -28,7 +28,7 @@ _.extend(DragPoint.prototype, {
 
 	update: function(p, dt)
 	{
-		var size = Vector2D.mul(this._parent.cellSize(), 0.5);
+		var size = Vector2D.mul(this._parent.size(), 0.5);
 
 		var t = Vector2D.construct(
 			this._pos.x * size.x,

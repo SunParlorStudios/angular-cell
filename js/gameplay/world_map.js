@@ -1,10 +1,15 @@
 require("js/gameplay/editor");
 
+Enum("MoveableType", [
+	"Block",
+	"Scenery"]);
+
 var WorldMap = WorldMap || function()
 {
 	this._blocks = [];
-	this._visuals = [];
-	this._main = [];
+	this._scenery = [];
+
+	this._moveables = [];
 
 	this._editing = false;
 
@@ -54,16 +59,47 @@ _.extend(WorldMap.prototype, {
 		return this._blocks;
 	},
 
-	createBlock: function(x, y)
+	createMoveable: function(x, y, type)
 	{
-		this._blocks.push(new Block(x, y, this._editMode === true));
+		switch(type)
+		{
+			case MoveableType.Block:
+				var b = new Block(x, y, this._editMode === true);
+				this._blocks.push(b);
+				this._moveables.push(b);
+			break;
+
+			case MoveableType.Scenery:
+				var b = new Scenery(x, y, this._editMode === true);
+				this._scenery.push(b);
+				this._moveables.push(b);
+			break;
+		}
+		
+		
 	},
 
-	removeBlock: function(block)
+	removeMoveable: function(moveable, type)
 	{
-		block.destroy();
-		block.destroyPoints();
-		this._blocks.splice(this._blocks.indexOf(block), 1);
+		moveable.destroy();
+		moveable.destroyPoints();
+		this._moveables.splice(this._moveables.indexOf(moveable), 1);
+		
+		var idx = this._blocks.indexOf(moveable);
+
+		if (idx !== -1)
+		{
+			this._blocks.splice(this._blocks.indexOf(moveable), 1);
+			return;
+		}
+
+		idx = this._scenery.indexOf(moveable);
+
+		if (idx !== -1)
+		{
+			this._scenery.splice(this._scenery.indexOf(moveable), 1);
+			return;
+		}
 	},
 
 	update: function(dt)
@@ -72,15 +108,15 @@ _.extend(WorldMap.prototype, {
 		{
 			if (this._editing == true)
 			{
-				this._editor.update(this._blocks, dt);
+				this._editor.update(this._moveables, dt);
 			}
 			else
 			{
 				if (Keyboard.isReleased(Key.E))
 				{
-					for (var i = 0; i < this._blocks.length; ++i)
+					for (var i = 0; i < this._moveables.length; ++i)
 					{
-						this._blocks[i].spawnPoints();
+						this._moveables[i].spawnPoints();
 					}
 					this._editing = true;
 				}

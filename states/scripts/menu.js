@@ -1,5 +1,7 @@
 require("js/gameplay/player");
 require("js/gameplay/enemy");
+require("js/gameplay/moveable");
+require("js/gameplay/scenery");
 require("js/gameplay/block");
 require("js/gameplay/fish_tank");
 require("js/gameplay/projectile");
