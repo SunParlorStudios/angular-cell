@@ -84,7 +84,7 @@ _.extend(WorldMap.prototype, {
 		moveable.destroy();
 		moveable.destroyPoints();
 		this._moveables.splice(this._moveables.indexOf(moveable), 1);
-		
+
 		var idx = this._blocks.indexOf(moveable);
 
 		if (idx !== -1)
@@ -119,6 +119,7 @@ _.extend(WorldMap.prototype, {
 						this._moveables[i].spawnPoints();
 					}
 					this._editing = true;
+					this._editor.show();
 				}
 			}
 		}

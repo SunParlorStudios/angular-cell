@@ -1,3 +1,5 @@
+require("js/ui/editor/editor_ui");
+
 var Editor = Editor || function(map)
 {
 	this._dragging = false;
@@ -8,9 +10,23 @@ var Editor = Editor || function(map)
 	this._selectedBlock = undefined;
 	this._scaleSpeed = 500;
 	this._dragPoint = false;
+	this._ui = new EditorUI(this);
+	this._tool = MoveableType.Block;
+	this._offset = Vector2D.construct(0, 0);
+	this._startDrag = false;
 }
 
 _.extend(Editor.prototype, {
+	setTool: function(tool)
+	{
+		this._tool = tool;
+	},
+
+	show: function()
+	{
+		this._ui.show();
+	},
+
 	update: function(moveables, dt)
 	{
 		var p = Mouse.position(MousePosition.Relative);
@@ -41,6 +57,7 @@ _.extend(Editor.prototype, {
 
 		if (!Mouse.isDown(MouseButton.Left))
 		{
+			this._startDrag = false;
 			if (selected !== undefined)
 			{
 				if (this._selected !== undefined && this._selected !== selected)
@@ -85,7 +102,12 @@ _.extend(Editor.prototype, {
 		}
 		else if (Mouse.isDown(MouseButton.Left) && this._dragPoint == false)
 		{
-			this._selected.setTranslation(p.x, p.y);
+			if (this._startDrag == false)
+			{
+				this._startDrag = true;
+				this._offset = Vector2D.sub(this._selected.translation(), p);
+			}
+			this._selected.setTranslation(p.x + this._offset.x, p.y + this._offset.y);
 		}
 
 		if (this._dragging == true)
@@ -94,7 +116,6 @@ _.extend(Editor.prototype, {
 			this._cameraPosition = Vector2D.add(this._cameraPosition, Vector2D.mul(movement, -1 / this._zoom));
 		}
 
-
 		Game.camera.setTranslation(this._cameraPosition.x, this._cameraPosition.y, 0);
 		Game.camera.setZoom(this._zoom);
 
@@ -102,7 +123,7 @@ _.extend(Editor.prototype, {
 		{
 			if (this._selected === undefined)
 			{
-				this._map.createMoveable(p.x, p.y, MoveableType.Block);
+				this._map.createMoveable(p.x, p.y, this._tool);
 			}
 			else
 			{
@@ -113,6 +134,7 @@ _.extend(Editor.prototype, {
 
 		if (Keyboard.isReleased(Key.E))
 		{
+			this._ui.hide();
 			this._map.setEditing(false);
 			if (this._selected !== undefined)
 			{

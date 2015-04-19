@@ -28,26 +28,26 @@ _.extend(DragPoint.prototype, {
 
 	update: function(p, dt)
 	{
-		var size = Vector2D.mul(this._parent.size(), 0.5);
+		var size = this._parent.size();
 
 		var t = Vector2D.construct(
-			this._pos.x * size.x,
-			this._pos.y * size.y
+			this._pos.x * Math.abs(size.x) / 2,
+			this._pos.y * Math.abs(size.y) / 2
 		);
 
 		this.setTranslation(t.x, t.y);
 
+		if (Mouse.isReleased(MouseButton.Left) && this._dragging == true)
+		{
+			this._dragging = false;
+			return false;
+		}
+
 		if (this._dragging == true)
 		{
-			if (Mouse.isReleased(MouseButton.Left))
-			{
-				this._dragging = false;
-				return false;
-			}
-
 			p = Vector2D.sub(p, this._parent.translation());
-			p.x /= size.x;
-			p.y /= size.y;
+			p.x /= size.x / 2;
+			p.y /= size.y / 2;
 
 			if (Keyboard.isDown(Key.Shift))
 			{
@@ -66,9 +66,8 @@ _.extend(DragPoint.prototype, {
 				}
 			}
 
-			this._pos = p;
-			this._parent.setCellSize(Math.abs(size.x * 2 * p.x), Math.abs(size.y * 2 * p.y));
-
+			size = Vector2D.construct(size.x * p.x, size.y * p.y);
+			this._parent.setCellSize(size.x, size.y);
 			return true;
 		}
 

@@ -16,6 +16,7 @@ _.extend(Block.prototype, {
 		this.setSize(64, 64);
 		this.spawn("Default");
 		this.setZ(0);
+		this.setEffect("effects/cull_none.effect");
 		this.setTechnique("Diffuse");
 		this.setBlend(0, 0, 0);
 		this.setTranslation(this._position.x, this._position.y);
@@ -26,8 +27,8 @@ _.extend(Block.prototype, {
 		var pos = player.position();
 		var block = this.translation();
 
-		var size = Vector2D.mul(player.size(), 0.5);
-		var cell = Vector2D.mul(this._cellSize, 0.5);
+		var size = Vector2D.abs(Vector2D.mul(player.size(), 0.5));
+		var cell = Vector2D.abs(Vector2D.mul(this._cellSize, 0.5));
 
 		if (pos.x + size.x > block.x - cell.x && pos.y + size.y > block.y - cell.y && pos.x - size.x < block.x + cell.x && pos.y - size.y < block.y + cell.y)
 		{
@@ -42,8 +43,8 @@ _.extend(Block.prototype, {
 		var pos = player.position();
 		var block = this.translation();
 
-		var size = Vector2D.mul(player.size(), 0.5);
-		var cell = Vector2D.mul(this._cellSize, 0.5);
+		var size = Vector2D.abs(Vector2D.mul(player.size(), 0.5));
+		var cell = Vector2D.abs(Vector2D.mul(this._cellSize, 0.5));
 
 		var pen = Vector2D.construct(0, 0);
 

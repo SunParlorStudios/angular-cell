@@ -39,9 +39,6 @@ _.extend(Moveable.prototype, {
 
 	setCellSize: function(x, y)
 	{
-		x = Math.max(x, 4);
-		y = Math.max(y, 4);
-		
 		this._cellSize = Vector2D.construct(x, y);
 		this.setSize(x, y);
 	},
@@ -66,7 +63,7 @@ _.extend(Moveable.prototype, {
 	inBounds: function(p)
 	{
 		var block = this.translation();
-		var cell = Vector2D.mul(this.size(), 0.5);
+		var cell = Vector2D.abs(Vector2D.mul(this.size(), 0.5));
 
 		if (p.x > block.x - cell.x && p.y > block.y - cell.y && p.x < block.x + cell.x && p.y < block.y + cell.y)
 		{
