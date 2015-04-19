@@ -149,9 +149,15 @@ _.extend(WorldMap.prototype, {
 
 		this._player.update(this._blocks, this._enemies, dt);
 
-		for (var i = 0; i < this._enemies.length; i++)
+		for (var i = this._enemies.length - 1; i >= 0; i--)
 		{
 			this._enemies[i].update(this._player, this._blocks, dt);
+
+			if (this._enemies[i].isDead())
+			{
+				this._enemies[i].removeYourself();
+				this._enemies.pop();
+			}
 		}
 	},
 
