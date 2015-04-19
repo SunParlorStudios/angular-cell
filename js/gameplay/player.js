@@ -1,6 +1,8 @@
 Enum('Weapon', [
 	'HammerHead']);
 
+require('js/gameplay/puffer_fish');
+
 var Player = function(map, parent)
 {
 	Player._super.constructor.call(this, parent);
@@ -35,19 +37,22 @@ var Player = function(map, parent)
 	this._weaponBeingUsed = false;
 	this._weaponInUse = 0;
 	this._weaponTimer = 0;
-	this._hammerHeadMax = 0.3;
+	this._hammerHeadMax = 0.4;
+
+	this._pufferThrowMax = 0.2;
+	this._pufferThrowTimer = this._pufferThrowMax;
 
 	this._hurting = false;
 	this._hurtMax = 2;
 	this._hurtTimer = this._hurtMax;
 
 	this._weapon = new Quad(this);
-	this._weapon.setSize(256, 128);
+	this._weapon.setSize(512, 256);
 	this._weapon.setDiffuseMap("textures/player/hammer_head.png");
 	this._weapon.setEffect("effects/cull_none.effect");
 	this._weapon.setTechnique("Diffuse");
 	this._weapon.setOffset(0.5, 0.5);
-	this._weapon.setTranslation(0, -30, 99);
+	this._weapon.setTranslation(0, -90, 99);
 	this._weapon.spawn("Default");
 }
 
@@ -71,6 +76,7 @@ _.extend(Player.prototype, {
 		this._hurtAnimation = new SpriteAnimation("animations/player_hurt.anim", "textures/player/player_sheet.png");
 
 		this._hammerHeadAnimation = new SpriteAnimation("animations/weapon_hammer_head.anim", "textures/player/hammer_head.png");
+		this._weaponEmptyAnimation = new SpriteAnimation("animations/weapon_empty.anim", "textures/player/hammer_head.png");
 		
 		this.setAnimation(this._walkAnimation);
 		this._walkAnimation.play();
@@ -80,7 +86,12 @@ _.extend(Player.prototype, {
 		this._deathAnimation.setSpeed(4);
 		this._attackAnimation.setSpeed(3);
 
-		this.switchWeapon();
+		this._weapon.setAnimation(this._weaponEmptyAnimation);
+		this._weaponEmptyAnimation.play();
+
+		this._weapon.setRotation(0, 0, 0.12);
+
+		//this.switchWeapon();
 	},
 
 	size: function()
@@ -135,62 +146,34 @@ _.extend(Player.prototype, {
 		}
 	},
 
-	switchWeapon: function ()
-	{
-		this._weaponInUse++;
-		if (this._weaponInUse >= 1)
-		{
-			this._weaponInUse = 0;
-		}
-
-		switch (this._weaponInUse)
-		{
-			case Weapon.HammerHead:
-				this._weapon.setAnimation(this._hammerHeadAnimation);
-				this._hammerHeadAnimation.setFrame(0);
-				this._hammerHeadAnimation.stop(4);
-				break;
-		}
-	},
-
 	useWeapon: function ()
 	{
 		this._weaponBeingUsed = true;
 		this._weaponTimer = 0;
 
-		switch (this._weaponInUse)
-		{
-			case Weapon.HammerHead:
-				this._weapon.setAnimation(this._hammerHeadAnimation);
-				this._hammerHeadAnimation.setFrame(0);
-				this._hammerHeadAnimation.setSpeed(5);
-				this._hammerHeadAnimation.play();
+		this._weapon.setAnimation(this._hammerHeadAnimation);
+		this._hammerHeadAnimation.setFrame(0);
+		this._hammerHeadAnimation.setSpeed(5);
+		this._hammerHeadAnimation.play();
 
-				this.setAnimation(this._attackAnimation);
-				this._attackAnimation.setSpeed(5);
-				this._attackAnimation.play();
-				break;
-		}
+		this.setAnimation(this._attackAnimation);
+		this._attackAnimation.setSpeed(5);
+		this._attackAnimation.play();
 	},
 
-	move: function(dt, enemies)
+	throwPuffer: function ()
 	{
-		if (Keyboard.isPressed(Key.Q))
-		{
-			this.setRotation(0, 0, 0);
-			this._camPos = Game.camera.translation();
-			this._dead = true;
-			this.setAnimation(this._deathAnimation);
-			this._deathAnimation.stop();
-			this._deathAnimation.setFrame(0);
-			this._deathAnimation.play();
-			this._deathTimer = 0;
-			this._velocity = {
-				x: -1200,
-				y: -800
-			}
-		}
+		this._pufferThrowTimer = 0;
+		this.setAnimation(this._attackAnimation);
+		this._attackAnimation.setSpeed(8);
+		this._attackAnimation.play();
+		this._weaponBeingUsed = true;
 
+		this._thrown = false;
+	},
+
+	move: function(dt, enemies, map)
+	{
 		if (this._dead == true)
 		{
 			if (this._deathTimer < this._deathMax)
@@ -205,31 +188,8 @@ _.extend(Player.prototype, {
 
 		if (this._dead == false)
 		{
-			if (Keyboard.isPressed(Key.X) || true)
-			{
-				var mousePos = Mouse.position(MousePosition.Relative);
-				mousePos.x += Game.camera.translation().x;
-				mousePos.y += Game.camera.translation().y;
-
-				var dist = Math.distance(mousePos.x, mousePos.y, this._position.x, this._position.y);
-
-				var a = Math.atan2(this._position.y - mousePos.y, this._position.x - mousePos.x);
-
-				Log.info(a);
-
-				new PufferFish(Vector2D.construct(
-					Math.cos(a) * dist,
-					Math.sin(a) * dist
-				));
-			}
-
 			if (this._weaponBeingUsed === false)
 			{
-				if (Keyboard.isPressed(Key.E))
-				{
-					this.switchWeapon();
-				}
-
 				if (Keyboard.isPressed(Key.Space) && this._punchTimer == this._punchMax && this._grounded)
 				{
 					this.setAnimation(this._punchAnimation);
@@ -254,38 +214,74 @@ _.extend(Player.prototype, {
 				{
 					this.useWeapon();
 				}
+
+				if (Keyboard.isPressed(Key.Q))
+				{
+					this.throwPuffer();
+				}
 			}
 			else
 			{
-				this._weaponTimer += dt;
-				switch(this._weaponInUse)
+				if (this._weaponTimer < this._hammerHeadMax)
 				{
-					case Weapon.HammerHead:
-						if (this._weaponTimer > this._hammerHeadMax)
+					this._weaponTimer += dt;
+					if (this._weaponTimer > this._hammerHeadMax * 0.5)
+					{
+						for (var i = 0; i < enemies.length; i++)
 						{
-							this._weaponBeingUsed = false;
-							this._hammerHeadAnimation.setFrame(0);
-							this._hammerHeadAnimation.stop();
-
-							this._attackAnimation.stop();
-							this.setAnimation(this._walkAnimation);
-							this._walkAnimation.play();
-
-							if (this._weaponTimer > this._hammerHeadMax * 0.5)
+							if ((enemies[i].position().x < this._position.x && this.scale().x < 0) || (enemies[i].position().x > this._position.x && this.scale().x > 0))
 							{
-								for (var i = 0; i < enemies.length; i++)
+								if (Math.distance(enemies[i].position().x, enemies[i].position().y, this.position().x, this.position().y) < 126)
 								{
-									if ((enemies[i].position().x < this._position.x && this.scale().x < 0) || (enemies[i].position().x > this._position.x && this.scale().x > 0))
-									{
-										if (Math.distance(enemies[i].position().x, enemies[i].position().y, this.position().x, this.position().y) < 126)
-										{
-											enemies[i].hurt(10, this);
-										}
-									}
+									this._weaponHit = true;
+									enemies[i].hurt(10, this);
 								}
 							}
 						}
-						break;
+					}
+				}
+				else if (this._pufferThrowTimer < this._pufferThrowMax)
+				{
+					this._pufferThrowTimer += dt;
+					if (this._pufferThrowTimer / this._pufferThrowMax > 0.8 && !this._thrown)
+					{
+						this._thrown = true;
+
+						var mousePos = Mouse.position(MousePosition.Relative);
+						mousePos.x += Game.camera.translation().x;
+						mousePos.y += Game.camera.translation().y;
+
+						if (mousePos.x < this._position.x)
+							this.setScale(-1, 1);
+						else
+							this.setScale(1, 1);
+
+						var dist = Math.distance(mousePos.x, mousePos.y, this._position.x, this._position.y);
+						var a = Math.atan2(this._position.y - mousePos.y, this._position.x - mousePos.x);
+
+						map._pufferFish.push( 
+							new PufferFish(
+								this._position,
+								Vector2D.construct(
+									Math.cos(a) * dist * 5 * -1,
+									Math.sin(a) * dist * 5 * -1
+								)
+							)
+						);
+					}
+				}
+				else
+				{
+					this._weaponBeingUsed = false;
+
+					this._hammerHeadAnimation.stop();
+					this._weapon.setAnimation(this._weaponEmptyAnimation);
+					this._weaponEmptyAnimation.play();
+					this._weaponEmptyAnimation.setSpeed(0);
+
+					//this._attackAnimation.stop();
+					//this.setAnimation(this._walkAnimation);
+					//this._walkAnimation.play();
 				}
 			}
 		}
@@ -384,15 +380,19 @@ _.extend(Player.prototype, {
 		var ratio = Math.abs(this._velocity.x) / this._maxVelocity.x;
 		this._walkAnimation.setSpeed(ratio * this._frameRate);
 		ParallaxManager.move((this._velocity.x / this._maxVelocity.x) * this._parallaxSpeed);
-		if (ratio < 0.025)
+		
+		if (this._pufferThrowTimer >= this._pufferThrowMax)
 		{
-			this._walkAnimation.setFrame(0);
-			this._walkAnimation.stop();
-		}
-		else
-		{
-			this.setScale(Math.abs(this._velocity.x) / this._velocity.x, 1);
-			this._walkAnimation.play();
+			if (ratio < 0.025)
+			{
+				this._walkAnimation.setFrame(0);
+				this._walkAnimation.stop();
+			}
+			else
+			{
+				this.setScale(Math.abs(this._velocity.x) / this._velocity.x, 1);
+				this._walkAnimation.play();
+			}
 		}
 
 		var wobble
@@ -490,9 +490,9 @@ _.extend(Player.prototype, {
 		}
 	},
 
-	update: function(blocks, enemies, dt)
+	update: function(blocks, enemies, map, dt)
 	{
-		this.move(dt, enemies);
+		this.move(dt, enemies, map);
 
 		this.resolveCollisions(blocks, dt);
 		this.updateVisuals(dt);

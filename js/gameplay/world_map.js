@@ -15,6 +15,8 @@ var WorldMap = WorldMap || function()
 
 	this._editMode = CVar.get("editMode");
 
+	this._pufferFish = [];
+
 	this._sceneryTextures = IO.filesInDirectory("textures/scenery");
 
 	for (var i = 0; i < this._sceneryTextures.length; ++i)
@@ -51,7 +53,7 @@ _.extend(WorldMap.prototype, {
 		this._player.initialise();
 
 		this._enemies = [];
-		this._enemies.push(new Enemy());
+		//this._enemies.push(new Enemy());
 		this.load();
 	},
 
@@ -161,7 +163,7 @@ _.extend(WorldMap.prototype, {
 			return;
 		}
 
-		this._player.update(this._blocks, this._enemies, dt);
+		this._player.update(this._blocks, this._enemies, this, dt);
 
 		for (var i = this._enemies.length - 1; i >= 0; i--)
 		{
@@ -172,6 +174,17 @@ _.extend(WorldMap.prototype, {
 				this._enemies[i].removeYourself();
 				this._enemies.pop();
 			}
+		}
+
+		for (var i = this._pufferFish.length - 1; i >= 0; i--)
+		{
+			this._pufferFish[i].update(this._enemies, this._blocks, dt);
+
+			//if(this._pufferFish[i].isDead())
+			//{
+				//this._pufferFish[i].removeYourself();
+				//this._pufferFish.pop();
+			//}
 		}
 	},
 
