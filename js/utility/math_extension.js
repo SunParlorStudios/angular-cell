@@ -111,6 +111,13 @@ _.extend(Math, {
 		return b+c*(6*tc*ts + -15*ts*ts + 10*tc);
 	},
 
+	easeBackInCubic: function (t, b, c, d)
+	{
+		var ts=(t/=d)*t;
+		var tc=ts*t;
+		return b+c*(-9.4475*tc*ts + 10.2475*ts*ts + 5.8*tc + -5.3*ts + -0.3*t);
+	},
+
 	/**
 	 * Calculates distance
 	 * 

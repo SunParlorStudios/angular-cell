@@ -37,13 +37,14 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/Environment/Camera_Gradient.png");
 		ContentManager.load("texture", "textures/starfish.png");
 		ContentManager.load("texture", "textures/ui/crosshair.png");
-		ContentManager.load("texture", "textures/player/hammer_head.png");
 		ContentManager.load("anim", "animations/player_walk.anim");
 		ContentManager.load("anim", "animations/player_punch.anim");
 		ContentManager.load("anim", "animations/player_death.anim");
 		ContentManager.load("anim", "animations/player_attack.anim");
 		ContentManager.load("anim", "animations/player_hurt.anim");
+		ContentManager.load("anim", "animations/puffer_fish.anim");
 		ContentManager.load("anim", "animations/weapon_hammer_head.anim");
+		ContentManager.load("anim", "animations/weapon_empty.anim");
 		ContentManager.load("shader", "shaders/fog.fx");
 		ContentManager.load("effect", "effects/fog.effect");
 		ContentManager.load("shader", "shaders/gradient.fx");
@@ -64,12 +65,35 @@ _.extend(Menu.prototype, {
 		this._gradient.setOffset(0.5, 1);
 
 		this._gradient.spawn("Default");
+
+		this._crosshair = new Widget();
+		this._crosshair.setSize(30, 30);
+		this._crosshair.setDiffuseMap('textures/ui/crosshair.png');
+		this._crosshair.setTechnique('Diffuse');
+		this._crosshair.setOffset(0.5, 0.5);
+		this._crosshair.spawn('Default');
+
 		Game.gravity = Vector2D.construct(0, 5000);
 	},
 
 	update: function (dt)
 	{
 		Menu._super.update.call(this);
+
+		var mousePos = Mouse.position(MousePosition.Screen);
+		mousePos = Vector2D.mul(Vector2D.add(mousePos, Vector2D.construct(1, 1)), 0.5);
+
+		var cc = Vector2D.sub(mousePos, Vector2D.construct(0.5, 0.5));
+    	var dist = Vector2D.dot(cc, cc) * 0.15;
+
+    	cc = Vector2D.mul(Vector2D.mul(cc, dist + 1), dist);
+
+    	mousePos = Vector2D.add(mousePos, cc);
+    	var res = RenderSettings.resolution();
+    	mousePos = Vector2D.multiply(mousePos, Vector2D.construct(res.w, res.h));
+    	mousePos = Vector2D.sub(mousePos, Vector2D.construct(res.w / 2, res.h / 2));
+		this._crosshair.setTranslation(mousePos.x, mousePos.y);
+
 		this._worldMap.update(dt);
 	},
 
