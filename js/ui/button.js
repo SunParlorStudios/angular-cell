@@ -61,14 +61,17 @@ _.extend(Button.prototype, {
 		{
 			this._textures.pressed = this._textures.default;
 		}
+
+		this.setDiffuseMap(texture);
 	},
 
 	setOnEnter: function(func)
 	{
+		var self = this;
 		this._onEnter = function(button)
 		{
-			func.call(this, button);
-			self.setDiffuseMap(this._textures.hover);
+			func.call(self._onEnter.ctx, button);
+			self.setDiffuseMap(self._textures.default);
 		}
 		this._onEnter.ctx = this;
 		this._mouseArea.setOnEnter(this._onEnter);

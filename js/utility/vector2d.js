@@ -195,5 +195,13 @@ _.extend(Vector2D, {
 			x: Math.lerp(v1.x, v2.x, t),
 			y: Math.lerp(v1.y, v2.y, t)
 		}
+	},
+
+	abs: function(v)
+	{
+		return {
+			x: Math.abs(v.x),
+			y: Math.abs(v.y)
+		}
 	}
 });

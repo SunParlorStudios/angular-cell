@@ -1,30 +1,33 @@
-require("js/ui/editor/editor_tool");
+Enum("ToolType", [
+	"Block",
+	"Scenery"]);
 
-Enum("EditorUILayer",[
-	"Root",
-	"Widgets"
-]);
+var testUI = testUI || false;
 
 var EditorUI = EditorUI || function(editor, root)
 {
 	this._editor = editor;
-	this._inputWidget = undefined;
-	this._root = root || undefined;
-	this._toolNames = [
-		"Raise",
-		"Paint",
-		"Smooth",
-		"Ramp",
-		"Flatten"
-	]
+	this._root = root;
+	this._frame = undefined;
 
-	this._numTools = this._toolNames.length;
+	this._path = "textures/ui/editor/";
 
+	this._toolData = [
+		{path: this._path + "block_object.png", type: ToolType.Block},
+		{path: this._path + "scenery_object.png", type: ToolType.Scenery}
+	];
+
+	this._numTools = 2;
+	this._tools = [];
 	this._metrics = {
-		toolWidth: 84,
-		toolHeight: 84,
-		toolPadding: 10
+		button: {
+			margin: 20,
+			size: 64,
+			padding: 20
+		}
 	}
+
+	testUI = this;
 
 	this.initialise();
 }
@@ -32,117 +35,125 @@ var EditorUI = EditorUI || function(editor, root)
 _.extend(EditorUI.prototype, {
 	initialise: function()
 	{
-		this._inputWidget = new Widget();
-		this._inputArea = new MouseArea(this._inputWidget);
+		ContentManager.load("texture", "textures/ui/editor/block_object.png");
+		ContentManager.load("texture", "textures/ui/editor/scenery_object.png");
 
-		if (this._root === undefined)
-		{
-			this._root = new Widget();
-		}
+		this._frame = new Widget(this._root);
+		var button;
 
-		this._tools = [];
 		for (var i = 0; i < this._numTools; ++i)
 		{
-			this._tools.push(new EditorTool(this._root, this._editor, EditorTools[this._toolNames[i]], "UI"));
+			button = new Button(this._frame);
+			this._tools.push(button);
 		}
 
-		this._currentTexture = new Widget(this._root);
-		this._currentTextureMouseArea = new MouseArea(this._currentTexture);
-		this._currentBrush = new Widget(this._currentTexture);
-		this._currentBrushMouseArea = new MouseArea(this._currentBrush);
-
+		this._selected = undefined;
 		this.setUI();
 	},
 
 	setUI: function()
 	{
+		var m = this._metrics.button;
 		var res = RenderSettings.resolution();
+		var half_res = {w: res.w / 2, h: res.h / 2}
+		this._frame.spawn("Default");
+		this._frame.setSize(m.size + m.padding * 2, (m.size + m.padding * 2) * this._numTools - m.padding);
+		this._frame.setBlend(0, 0, 0);
 
-		this._root.setZ(EditorUILayer.Widgets);
+		this._frame.setTranslation(
+			half_res.w - this._frame.size().x - 20, 
+			-half_res.h + 20);
 
-		this._disableInput.ctx = this;
-		this._enableInput.ctx = this;
-
-		this._inputWidget.setZ(EditorUILayer.Root);
-		this._inputWidget.setSize(res.w, res.h);
-		this._inputWidget.setOffset(0.5, 0.5);
-
-		this._inputArea.setOnEnter(this._enableInput);
-		this._inputArea.setOnLeave(this._disableInput);
-
-		this._root.setTranslation(
-			res.w / 2 - this._metrics.toolWidth - this._metrics.toolPadding, 
-			-res.h / 2 + this._metrics.toolPadding, 0);
-
-		for (var i = 0; i < this._numTools; ++i)
+		var tool;
+		
+		for (var i = 0; i < this._tools.length; ++i)
 		{
-			var tool = this._tools[i];
-			var w = this._metrics.toolWidth;
-			var h = this._metrics.toolHeight;
+			tool = this._tools[i];
+			tool.setTranslation(m.margin, m.margin + i * (m.size + m.padding));
+			tool.setSize(m.size, m.size);
+			tool.setBlend(1, 1, 1);
+			tool.setZ(1);
+			tool.spawn("Default");
+			tool.setTextures(this._toolData[i].path);
 
-			tool.setSize(w, h);
-			tool.setTranslation(0, i * (h + this._metrics.toolPadding), EditorUILayer.Widgets);
-			tool.setUI();
+			tool.setBlend(0.5, 0.5, 0.5);
+			tool.selected = false;
+			tool.ui = this;
+			tool.idx = i;
+
+			tool.setOnEnter(this.onEnter, tool);
+			tool.setOnLeave(this.onLeave, tool);
+			tool.setOnReleased(this.onReleased, tool);
 		}
 
-		var h = this._metrics.toolHeight;
-		this._currentTexture.setSize(this._metrics.toolWidth, h);
-		this._currentTexture.spawn("UI");
-		this._currentTexture.setTranslation(0, this._numTools * (h + this._metrics.toolPadding), EditorUILayer.Widgets);
+		this.setSelected(0);
+	},
 
-		this._currentBrush.setSize(this._metrics.toolWidth, h);
-		this._currentBrush.spawn("UI");
-		this._currentBrush.setTranslation(0, h + this._metrics.toolPadding, EditorUILayer.Widgets);
+	setSelected: function(idx)
+	{
+		if (this._selected !== undefined)
+		{
+			this._selected.selected = false;
+			this._selected.setBlend(0.5, 0.5, 0.5);
+		}
+		
+		var tool = this._tools[idx];
+		tool.selected = true;
+		this._selected = tool;
+		tool.setBlend(0.8, 1, 0);
 
-		this._changeTexture.ctx = this;
-		this._changeBrush.ctx = this;
+		this._editor.setTool(this._selected.idx);
+	},
 
-		this._currentTextureMouseArea.setOnEnter(this._disableInput);
-		this._currentTextureMouseArea.setOnLeave(this._enableInput);
-		this._currentTextureMouseArea.setOnReleased(this._changeTexture)
+	onReleased: function(button)
+	{
+		if (button == MouseButton.Left)
+		{
+			this.ui.setSelected(this.idx);
+		}
+	},
 
-		this._currentBrushMouseArea.setOnEnter(this._disableInput);
-		this._currentBrushMouseArea.setOnLeave(this._enableInput);
-		this._currentBrushMouseArea.setOnReleased(this._changeBrush)
+	onEnter: function()
+	{
+		this.setBlend(1, 1, 1);
+	},
+
+	onLeave: function()
+	{
+		if (this.selected == false)
+		{
+			this.setBlend(0.5, 0.5, 0.5);
+		}
+		else
+		{
+			this.setBlend(0.8, 1, 0);
+		}
 	},
 
 	show: function()
 	{
+		this._frame.setAlpha(1);
 
+		for (var i = 0; i < this._tools.length; ++i)
+		{
+			this._tools[i].setActivated(true);
+		}
 	},
 
 	hide: function()
 	{
+		this._frame.setAlpha(0);
 
-	},
-
-	setCurrentTexture: function(texture)
-	{
-		this._currentTexture.setDiffuseMap(texture);
-	},
-
-	setCurrentBrush: function(texture)
-	{
-		this._currentBrush.setDiffuseMap(texture);
-	},
-
-	_changeTexture: function()
-	{
-		this._editor.changeTexture();
-	},
-
-	_changeBrush: function()
-	{
-		this._editor.changeBrush();
-	},
-
-	_disableInput: function()
-	{
-		this._editor.addInputDisable(InputDisable.UI);
-	},
-
-	_enableInput: function()
-	{
-		this._editor.removeInputDisable(InputDisable.UI);
+		for (var i = 0; i < this._tools.length; ++i)
+		{
+			this._tools[i].setActivated(false);
+		}
 	}
 });
+
+
+if (testUI !== false)
+{
+	testUI.setUI = EditorUI.prototype.setUI;
+	testUI.setUI();
+}
