@@ -3,11 +3,13 @@ var Enemy = Enemy || function (parent)
 	Enemy._super.constructor.call(this, parent);
 
 	this._velocity = Vector2D.construct(0, 0);
-	this._acceleration = 500;
+	this._acceleration = 800;
 	this._maxVelocity = Vector2D.construct(800, 2000);
 	this._position = Vector2D.construct(0, -500);
 	this._jumpHeight = 1200;
 	this._margin = 9;
+
+	this._hurtForce = Vector2D.construct(1300, -700);
 
 	this._size = Vector2D.construct(40, 110);
 	this._friction = 2;
@@ -28,15 +30,23 @@ var Enemy = Enemy || function (parent)
 	this._idleAnimation = new SpriteAnimation("animations/henchman_idle.anim", "textures/henchman/henchman_sheet.png");
 	this._walkAnimation = new SpriteAnimation("animations/henchman_walk.anim", "textures/henchman/henchman_sheet.png");
 	this._attackAnimation = new SpriteAnimation("animations/henchman_attack.anim", "textures/henchman/henchman_sheet.png");
+	this._deathAnimation = new SpriteAnimation("animations/henchman_death.anim", "textures/henchman/henchman_sheet.png");
 
 	this.setAnimation(this._idleAnimation);
 	this._idleAnimation.play();
 
 	this._walkAnimation.setSpeed(4);
-	this._attackAnimation.setSpeed(5);
+	this._attackAnimation.setSpeed(4);
+	this._deathAnimation.setSpeed(4);
 
-	this._attackMax = 1;
+	this._attackMax = 0.5;
 	this._attackTimer = this._attackMax;
+
+	this._hurting = false;
+	this._hurtMax = 0.3;
+	this._hurtTimer = this._hurtMax;
+
+	this._health = 30;
 };
 
 _.inherit(Enemy, Quad);
@@ -68,43 +78,50 @@ _.extend(Enemy.prototype, {
 
 		var a = this._acceleration * dt;
 
-		if (target.position().x < this._position.x)
-			this._velocity.x -= a;
-
-		if (target.position().x > this._position.x)
-			this._velocity.x += a;
-
-		if (Math.distance(target.position().x, target.position().y, this._position.x, this._position.y) < 180 && this._attackTimer == this._attackMax)
+		if (!this._dead)
 		{
-			this._velocity.x *= 0.01;
+			if (target.position().x < this._position.x)
+				this._velocity.x -= a;
 
-			this._walkAnimation.stop();
-			this.setAnimation(this._attackAnimation);
-			this._attackAnimation.play();
-			this._attackTimer = 0;
-			this._attacked = false;
-		}
+			if (target.position().x > this._position.x)
+				this._velocity.x += a;
 
-		if (this._attackTimer < this._attackMax)
-		{
-			this._attackTimer += dt;
-
-			if (this._attackTimer > this._attackMax)
+			if (Math.distance(target.position().x, target.position().y, this._position.x, this._position.y) < 140 && this._attackTimer == this._attackMax && !this._hurting)
 			{
-				this._attackTimer = this._attackMax;
+				this._walkAnimation.stop();
+				this.setAnimation(this._attackAnimation);
+				this._attackAnimation.play();
+				this._attackTimer = 0;
 				this._attacked = false;
 			}
 
-			if (this._attackTimer > this._attackMax * 0.8 && Math.distance(target.position().x, target.position().y, this._position.x, this._position.y) < 180 && !this._attacked)
+			if (this._attackTimer < this._attackMax)
 			{
-				target.hurt(10, this);
-				this._attacked = true;
+				this._velocity.x *= 0.80;
+				this._attackTimer += dt;
+
+				if (this._attackTimer > this._attackMax)
+				{
+					this._attackTimer = this._attackMax;
+					this._attacked = false;
+				}
+
+				if (this._attackTimer > this._attackMax * 0.7 && Math.distance(target.position().x, target.position().y, this._position.x, this._position.y) < 100 && !this._attacked)
+				{
+					target.hurt(10, this);
+					this._attacked = true;
+				}
+			}
+			else
+			{
+				this.setAnimation(this._walkAnimation);
+				this._walkAnimation.play();
 			}
 		}
 		else
 		{
-			this.setAnimation(this._walkAnimation);
-			this._walkAnimation.play();
+			this._velocity.x *= 0.95;
+			this._velocity.y *= 0.95;
 		}
 
 		if (this._velocity.y > 0 || this._velocity.y < 0)
@@ -193,7 +210,88 @@ _.extend(Enemy.prototype, {
 		{
 			this.setScale(1, 1);
 		}
+
+		if (this._hurting)
+		{
+			if (!this._controlsUsedDuringHurt)
+			{
+				//this.setAnimation(this._hurtAnimation);
+			}
+
+			this._hurtTimer += dt;
+			this.setAlpha(Math.abs(Math.sin(this._hurtTimer * 20)));
+
+			if (this._hurtTimer > this._hurtMax)
+			{
+				this.setAlpha(1);
+				this._hurting = false;
+
+				this.setAnimation(this._walkAnimation);
+			}
+		}
 		
 		this.setTranslation(t.x, t.y + this._margin, 2);
+	},
+
+	hurt: function (damage, source)
+	{
+		if (!this._hurting)
+		{
+			this._health -= damage;
+
+			if (this._health <= 0)
+			{
+				this.setRotation(0, 0, 0);
+				this._camPos = Game.camera.translation();
+				this._dead = true;
+				this.setAnimation(this._deathAnimation);
+				this._deathAnimation.stop();
+				this._deathAnimation.setFrame(0);
+				this._deathAnimation.play();
+				this._deathTimer = 0;
+
+				if (this.scale().x < 0)
+				{
+					this._velocity = {
+						x: 1200,
+						y: -800
+					}
+				}
+				else
+				{
+					this._velocity = {
+						x: -1200,
+						y: -800
+					}
+				}
+			}
+			else
+			{
+				//this.setAnimation(this._hurtAnimation);
+				//this._hurtAnimation.setSpeed(1);
+				//this._hurtAnimation.play();
+
+				this._attackTimer = this._attackMax;
+
+				this._controlsUsedDuringHurt = false;
+				this._hurting = true;
+				this._hurtTimer = 0;
+
+				if (source.position().x > this._position.x)
+				{
+					this._velocity = {
+						x: -this._hurtForce.x,
+						y: this._hurtForce.y
+					};
+				}
+				else
+				{
+					this._velocity = {
+						x: this._hurtForce.x,
+						y: this._hurtForce.y
+					};
+				}
+			}
+		}
 	}
 });

@@ -31,14 +31,20 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/rec.png");
 		ContentManager.load("texture", "textures/Environment/BG_Wall.png");
 		ContentManager.load("texture", "textures/player/player_sheet.png");
+		ContentManager.load("texture", "textures/player/hammer_head.png");
+		ContentManager.load("texture", "textures/player/weapons.png");
 		ContentManager.load("texture", "textures/Environment/BG_Fish_Tank.png");
 		ContentManager.load("texture", "textures/Environment/Fish_Tank.png");
 		ContentManager.load("texture", "textures/Environment/BG_Color.png");
 		ContentManager.load("texture", "textures/starfish.png");
 		ContentManager.load("texture", "textures/ui/crosshair.png");
+		ContentManager.load("texture", "textures/player/hammer_head.png");
 		ContentManager.load("anim", "animations/player_walk.anim");
 		ContentManager.load("anim", "animations/player_punch.anim");
 		ContentManager.load("anim", "animations/player_death.anim");
+		ContentManager.load("anim", "animations/player_attack.anim");
+		ContentManager.load("anim", "animations/player_hurt.anim");
+		ContentManager.load("anim", "animations/weapon_hammer_head.anim");
 		ContentManager.load("shader", "shaders/fog.fx");
 		ContentManager.load("effect", "effects/fog.effect");
 
@@ -46,6 +52,7 @@ _.extend(Menu.prototype, {
 		ContentManager.load("anim", "animations/henchman_walk.anim");
 		ContentManager.load("anim", "animations/henchman_idle.anim");
 		ContentManager.load("anim", "animations/henchman_attack.anim");
+		ContentManager.load("anim", "animations/henchman_death.anim");
 
 		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.3);
 
@@ -82,13 +89,15 @@ _.extend(Menu.prototype, {
 		this._fishTank = new FishTank();
 
 		this._projectiles = [];
-		this._enemy = new Enemy();
+
+		this._enemies = [];
+		this._enemies.push(new Enemy());
 	},
 
 	update: function (dt)
 	{
 		Menu._super.update.call(this);
-		this._player.update(this._blocks, dt);
+		this._player.update(this._blocks, this._enemies, dt);
 		
 		var p = Mouse.position(MousePosition.Relative);
 		this._crosshair.setTranslation(p.x * 1.05, p.y * 1.05);
@@ -98,7 +107,11 @@ _.extend(Menu.prototype, {
 			this._projectiles[i].update(dt);
 		}
 
-		this._enemy.update(this._player, this._blocks, dt);
+		for (var i = 0; i < this._enemies.length; i++)
+		{
+			this._enemies[i].update(this._player, this._blocks, dt);
+		}
+
 		RenderTargets.default.setUniform(Uniform.Float, "Flicker", 0.9 + Math.random() * 0.1);
 	},
 
