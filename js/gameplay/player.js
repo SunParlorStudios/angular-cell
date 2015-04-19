@@ -204,6 +204,24 @@ _.extend(Player.prototype, {
 
 		if (this._dead == false)
 		{
+			if (Keyboard.isPressed(Key.X) || true)
+			{
+				var mousePos = Mouse.position(MousePosition.Relative);
+				mousePos.x += Game.camera.translation().x;
+				mousePos.y += Game.camera.translation().y;
+
+				var dist = Math.distance(mousePos.x, mousePos.y, this._position.x, this._position.y);
+
+				var a = Math.atan2(this._position.y - mousePos.y, this._position.x - mousePos.x);
+
+				Log.info(a);
+
+				new PufferFish(Vector2D.construct(
+					Math.cos(a) * dist,
+					Math.sin(a) * dist
+				));
+			}
+
 			if (this._weaponBeingUsed === false)
 			{
 				if (Keyboard.isPressed(Key.E))

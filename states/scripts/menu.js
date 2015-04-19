@@ -36,12 +36,12 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/Environment/BG_Color.png");
 		ContentManager.load("texture", "textures/starfish.png");
 		ContentManager.load("texture", "textures/ui/crosshair.png");
-		ContentManager.load("texture", "textures/player/hammer_head.png");
 		ContentManager.load("anim", "animations/player_walk.anim");
 		ContentManager.load("anim", "animations/player_punch.anim");
 		ContentManager.load("anim", "animations/player_death.anim");
 		ContentManager.load("anim", "animations/player_attack.anim");
 		ContentManager.load("anim", "animations/player_hurt.anim");
+		ContentManager.load("anim", "animations/puffer_fish.anim");
 		ContentManager.load("anim", "animations/weapon_hammer_head.anim");
 		ContentManager.load("shader", "shaders/fog.fx");
 		ContentManager.load("effect", "effects/fog.effect");
