@@ -46,6 +46,7 @@ _.extend(DragPoint.prototype, {
 		if (this._dragging == true)
 		{
 			p = Vector2D.sub(p, this._parent.translation());
+
 			p.x /= size.x / 2;
 			p.y /= size.y / 2;
 
@@ -66,8 +67,11 @@ _.extend(DragPoint.prototype, {
 				}
 			}
 
-			size = Vector2D.construct(size.x * p.x, size.y * p.y);
-			this._parent.setCellSize(size.x, size.y);
+			size = Vector2D.construct(size.x * p.x * this._pos.x, size.y * p.y * this._pos.y);
+			if (size.x != 0 && size.y != 0)
+			{
+				this._parent.setCellSize(size.x, size.y);
+			}
 			return true;
 		}
 

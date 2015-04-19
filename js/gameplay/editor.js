@@ -131,7 +131,7 @@ _.extend(Editor.prototype, {
 				var moveable = this._map.createMoveable(p.x, p.y, this._tool);
 				if (this._tool == MoveableType.Scenery)
 				{
-					moveable.setDiffuseMap(this._ui.selectedTexture());
+					moveable.setTexture(this._ui.selectedTexture());
 				}
 			}
 			else

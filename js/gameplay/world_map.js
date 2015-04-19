@@ -52,6 +52,7 @@ _.extend(WorldMap.prototype, {
 
 		this._enemies = [];
 		this._enemies.push(new Enemy());
+		this.load();
 	},
 
 	sceneryTextures: function()
@@ -122,6 +123,15 @@ _.extend(WorldMap.prototype, {
 	{
 		if (this._editMode == true)
 		{
+			if (Keyboard.isReleased(Key.S))
+			{
+				this.save();
+			}
+			if (Keyboard.isReleased(Key.O))
+			{
+				this.load();
+			}
+
 			if (this._editing == true)
 			{
 				this._editor.update(this._moveables, dt);
@@ -157,11 +167,70 @@ _.extend(WorldMap.prototype, {
 
 	save: function()
 	{
+		var save = {}
+		save.blocks = [];
+		save.scenery = [];
 
+		var t, s;
+
+		for (var i = 0; i < this._blocks.length; ++i)
+		{
+			t = this._blocks[i].translation();
+			s = this._blocks[i].size();
+
+			save.blocks.push({
+				x: t.x,
+				y: t.y,
+				sx: s.x,
+				sy: s.y
+			});
+		}
+
+		var t, s;
+
+		for (var i = 0; i < this._scenery.length; ++i)
+		{
+			t = this._scenery[i].translation();
+			s = this._scenery[i].size();
+
+			save.scenery.push({
+				x: t.x,
+				y: t.y,
+				sx: s.x,
+				sy: s.y,
+				texture: this._scenery[i].texture()
+			});
+		}
+
+		var str = JSON.stringify(save);
+		IO.write("json/map.json", str);
 	},
 
 	load: function()
 	{
+		if (IO.exists("json/map.json") == false)
+		{
+			return;
+		}
 
+		var str = IO.read("json/map.json");
+		var json = JSON.parse(str);
+		var moveable;
+		var obj;
+
+		for (var i = 0; i < json.blocks.length; ++i)
+		{
+			moveable = json.blocks[i];
+			obj = this.createMoveable(moveable.x, moveable.y, MoveableType.Block);
+			obj.setCellSize(moveable.sx, moveable.sy);
+		}
+
+		for (var i = 0; i < json.scenery.length; ++i)
+		{
+			moveable = json.scenery[i];
+			obj = this.createMoveable(moveable.x, moveable.y, MoveableType.Scenery);
+			obj.setCellSize(moveable.sx, moveable.sy);
+			obj.setTexture(moveable.texture);
+		}
 	}
 });
