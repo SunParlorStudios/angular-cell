@@ -1,6 +1,6 @@
-var DragPoint = DragPoint || function(parent, pos)
+var DragPoint = DragPoint || function(parent, pos, root)
 {
-	DragPoint._super.constructor.call(this, parent);
+	DragPoint._super.constructor.call(this, root);
 
 	this._parent = parent;
 	this._dragging = false;
@@ -19,7 +19,7 @@ _.extend(DragPoint.prototype, {
 	{
 		this.setSize(this._size, this._size);
 		this.setOffset(0.5, 0.5);
-		this.setZ(1);
+		this.setZ(200);
 
 		this.setEffect("effects/cull_none.effect");
 		this.setTechnique("Diffuse");
@@ -32,13 +32,14 @@ _.extend(DragPoint.prototype, {
 		var scale = this._parent.scale();
 
 		var t = Vector2D.construct(
-			this._pos.x * Math.abs(size.x) / 2,
-			this._pos.y * Math.abs(size.y) / 2
+			this._pos.x * Math.abs(size.x) * scale.x / 2,
+			this._pos.y * Math.abs(size.y) * scale.y / 2
 		);
 
-		this.setScale(1 / this._parent.scale().x * 2 + 1 / zoom, 1 / this._parent.scale().y * 2 + 1 / zoom);
+		this.setScale(1 / this._parent.scale().x + 1 / zoom, 1 / this._parent.scale().y + 1 / zoom);
 
-		this.setTranslation(t.x, t.y);
+		var pt = this._parent.translation();
+		this.setTranslation(pt.x + t.x, pt.y + t.y);
 
 		if (Mouse.isReleased(MouseButton.Left) && this._dragging == true)
 		{
@@ -66,6 +67,19 @@ _.extend(DragPoint.prototype, {
 					else
 					{
 						p.y -= diff;
+					}
+				}
+				else if (p.y < p.x)
+				{
+					var diff = Math.abs(p.y) - Math.abs(p.x);
+
+					if (p.x > 0)
+					{
+						p.x += diff;
+					}
+					else
+					{
+						p.x -= diff;
 					}
 				}
 			}
@@ -96,8 +110,8 @@ _.extend(DragPoint.prototype, {
 
 	inBounds: function(p)
 	{
-		var t = Vector2D.add(this._parent.translation(), Vector2D.multiply(this.translation(), this._parent.scale()));
-		var s = this._size * 0.5;
+		var t = this.translation();
+		var s = Vector2D.mul(this.scale(), this._size * 0.5).x;
 
 		if (p.x > t.x - s && p.y > t.y - s && p.x < t.x + s && p.y < t.y + s)
 		{

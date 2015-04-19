@@ -15,6 +15,8 @@ var WorldMap = WorldMap || function()
 
 	this._editMode = CVar.get("editMode");
 
+	this._pufferFish = [];
+
 	this._sceneryTextures = IO.filesInDirectory("textures/scenery");
 
 	for (var i = 0; i < this._sceneryTextures.length; ++i)
@@ -40,18 +42,19 @@ _.extend(WorldMap.prototype, {
 	initialise: function()
 	{
 		this._background = new Quad();
-		this._background.setSize(9999999, 9999999);
+		this._background.setSize(1280, 720);
 		this._background.setOffset(0.5, 0.5);
 		this._background.setTechnique("Diffuse");
-		this._background.setBlend(0.18, 0.65, 0.33)
+		this._background.setBlend(15 / 255, 95 / 255, 55 / 255)
 		this._background.spawn("Default");
 		this._background.setZ(-1000);
+		this._background.setEffect("effects/gradient.effect");
 
 		this._player = new Player(this);
 		this._player.initialise();
 
 		this._enemies = [];
-		this._enemies.push(new Enemy());
+		//this._enemies.push(new Enemy());
 		this.load();
 	},
 
@@ -121,6 +124,10 @@ _.extend(WorldMap.prototype, {
 
 	update: function(dt)
 	{
+		var ct = Game.camera.translation();
+		var z = Game.camera.zoom();
+		this._background.setTranslation(ct.x, ct.y);
+		this._background.setScale(1 / z + 0.1, 1 / z + 0.1);
 		for (var i = 0; i < this._scenery.length; ++i)
 		{
 			this._scenery[i].update(dt);
@@ -161,7 +168,7 @@ _.extend(WorldMap.prototype, {
 			return;
 		}
 
-		this._player.update(this._blocks, this._enemies, dt);
+		this._player.update(this._blocks, this._enemies, this, dt);
 
 		for (var i = this._enemies.length - 1; i >= 0; i--)
 		{
@@ -172,6 +179,17 @@ _.extend(WorldMap.prototype, {
 				this._enemies[i].removeYourself();
 				this._enemies.pop();
 			}
+		}
+
+		for (var i = this._pufferFish.length - 1; i >= 0; i--)
+		{
+			this._pufferFish[i].update(this._enemies, this._blocks, dt);
+
+			//if(this._pufferFish[i].isDead())
+			//{
+				//this._pufferFish[i].removeYourself();
+				//this._pufferFish.pop();
+			//}
 		}
 	},
 
