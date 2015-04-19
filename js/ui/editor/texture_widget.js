@@ -72,7 +72,7 @@ _.extend(TextureWidget.prototype, {
 	{
 		this._selector.setBlend(0.3, 0.3, 0.3);
 
-		this._text.setText(this._path);
+		this._text.setText(this._path.split("textures/scenery/")[1]);
 		this._text.spawn("Default");
 
 		var m = this._text.metrics();

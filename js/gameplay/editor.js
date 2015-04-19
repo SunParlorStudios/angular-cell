@@ -14,9 +14,15 @@ var Editor = Editor || function(map)
 	this._tool = MoveableType.Block;
 	this._offset = Vector2D.construct(0, 0);
 	this._startDrag = false;
+	this._inputEnabled = false;
 }
 
 _.extend(Editor.prototype, {
+	setInputEnabled: function(v)
+	{
+		this._inputEnabled = v;
+	},
+
 	map: function()
 	{
 		return this._map;
@@ -36,6 +42,11 @@ _.extend(Editor.prototype, {
 	{
 		this._ui.update(this._selected, dt);
 
+		if (this._inputEnabled == false)
+		{
+			return;
+		}
+		
 		var p = Mouse.position(MousePosition.Relative);
 		p = Vector2D.add(this._cameraPosition, Vector2D.mul(p, 1 / this._zoom));
 
@@ -46,7 +57,7 @@ _.extend(Editor.prototype, {
 		var maxDepth = 0;
 		for (var i = 0; i < moveables.length; ++i)
 		{
-			used = moveables[i].updateDragPoints(p, dt);
+			used = moveables[i].updateDragPoints(p, this._zoom, dt);
 
 			if (used == true)
 			{
@@ -143,7 +154,7 @@ _.extend(Editor.prototype, {
 
 		if (Mouse.isReleased(MouseButton.Right))
 		{
-			if (this._selected === undefined)
+			if (this._selected === undefined || (this._selected !== undefined && !Keyboard.isDown(Key.R)))
 			{
 				var moveable = this._map.createMoveable(p.x, p.y, this._tool);
 				if (this._tool == MoveableType.Scenery)
@@ -152,7 +163,7 @@ _.extend(Editor.prototype, {
 					moveable.setDepth(0);
 				}
 			}
-			else
+			else if (Keyboard.isDown(Key.R))
 			{
 				this._map.removeMoveable(this._selected);
 				this._selected = undefined;

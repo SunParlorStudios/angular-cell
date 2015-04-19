@@ -34,6 +34,7 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/Environment/BG_Fish_Tank.png");
 		ContentManager.load("texture", "textures/Environment/Fish_Tank.png");
 		ContentManager.load("texture", "textures/Environment/BG_Color.png");
+		ContentManager.load("texture", "textures/Environment/Camera_Gradient.png");
 		ContentManager.load("texture", "textures/starfish.png");
 		ContentManager.load("texture", "textures/ui/crosshair.png");
 		ContentManager.load("texture", "textures/player/hammer_head.png");
@@ -55,6 +56,12 @@ _.extend(Menu.prototype, {
 		this._worldMap = new WorldMap();
 		this._worldMap.initialise();
 
+		this._gradient = new Widget();
+		this._gradient.setSize(1280, 360);
+		this._gradient.setDiffuseMap("textures/Environment/Camera_Gradient.png");
+		this._gradient.setOffset(0.5, 1);
+
+		this._gradient.spawn("Default");
 		Game.gravity = Vector2D.construct(0, 5000);
 	},
 
