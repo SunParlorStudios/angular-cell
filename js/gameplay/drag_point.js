@@ -4,7 +4,7 @@ var DragPoint = DragPoint || function(parent, pos)
 
 	this._parent = parent;
 	this._dragging = false;
-	this._size = 12;
+	this._size = 6;
 
 	this._pos = pos;
 	this._dragging = false;
@@ -26,7 +26,7 @@ _.extend(DragPoint.prototype, {
 		this.spawn("Default");
 	},
 
-	update: function(p, dt)
+	update: function(p, zoom, dt)
 	{
 		var size = this._parent.size();
 		var scale = this._parent.scale();
@@ -36,7 +36,7 @@ _.extend(DragPoint.prototype, {
 			this._pos.y * Math.abs(size.y) / 2
 		);
 
-		this.setScale(1 / this._parent.scale().x, 1 / this._parent.scale().y);
+		this.setScale(1 / this._parent.scale().x * 2 + 1 / zoom, 1 / this._parent.scale().y * 2 + 1 / zoom);
 
 		this.setTranslation(t.x, t.y);
 

@@ -4,6 +4,7 @@ var Moveable = Moveable || function(editMode, parent)
 
 	this._cellSize = Vector2D.construct(64, 64);
 	this._dragPoints = [];
+	this._depth = -1;
 
 	if (editMode == true)
 	{
@@ -23,7 +24,7 @@ _.extend(Moveable.prototype, {
 
 	depth: function()
 	{
-		return this.translation().z;
+		return this._depth;
 	},
 
 	position: function()
@@ -58,13 +59,13 @@ _.extend(Moveable.prototype, {
 		this.setSize(x, y);
 	},
 
-	updateDragPoints: function(p, dt)
+	updateDragPoints: function(p, zoom, dt)
 	{
 		var used = false;
 		var using = false;
 		for (var i = 0; i < this._dragPoints.length; ++i)
 		{
-			used = this._dragPoints[i].update(p, dt);
+			used = this._dragPoints[i].update(p, zoom, dt);
 
 			if (used == true)
 			{

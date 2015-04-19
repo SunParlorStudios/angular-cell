@@ -32,7 +32,7 @@ var WorldMap = WorldMap || function()
 	}
 	else
 	{
-		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.3);
+		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.15);
 	}
 
 	this._background = undefined;

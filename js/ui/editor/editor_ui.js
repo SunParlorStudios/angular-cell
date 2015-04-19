@@ -2,7 +2,8 @@ require("js/ui/editor/texture_widget");
 
 Enum("ToolType", [
 	"Block",
-	"Scenery"]);
+	"Scenery",
+	"Enemy"]);
 
 var testUI = testUI || false;
 
@@ -16,10 +17,11 @@ var EditorUI = EditorUI || function(editor, root)
 
 	this._toolData = [
 		{path: this._path + "block_object.png", type: ToolType.Block},
-		{path: this._path + "scenery_object.png", type: ToolType.Scenery}
+		{path: this._path + "scenery_object.png", type: ToolType.Scenery},
+		{path: this._path + "enemy_object.png", type: ToolType.Enemy}
 	];
 	this._texturePanel = undefined;
-	this._numTools = 2;
+	this._numTools = 3;
 	this._tools = [];
 	this._metrics = {
 		button: {
@@ -39,7 +41,9 @@ _.extend(EditorUI.prototype, {
 	{
 		ContentManager.load("texture", "textures/ui/editor/block_object.png");
 		ContentManager.load("texture", "textures/ui/editor/scenery_object.png");
+		ContentManager.load("texture", "textures/ui/editor/enemy_object.png");
 
+		this._inputArea = new Widget(this._root);
 		this._frame = new Widget(this._root);
 		var button;
 
@@ -61,24 +65,37 @@ _.extend(EditorUI.prototype, {
 		this._depthText = new Text();
 
 		this._savedText = new Text();
+		this._input = new MouseArea(this._inputArea);
+		this._inputDisable = new MouseArea(this._frame);
 
 		this.setUI();
 	},
 
 	setUI: function()
 	{
+		this.enableInput.ctx = this;
+		this.disableInput.ctx = this;
+		this._input.setOnEnter(this.enableInput);
+		this._input.setOnLeave(this.disableInput);
+
 		var m = this._metrics.button;
 		var res = RenderSettings.resolution();
+
+		this._inputArea.setOffset(0.5, 0.5);
+		this._inputArea.setSize(res.w, res.h);
+		this._inputArea.setZ(-100);
+
 		var half_res = {w: res.w / 2, h: res.h / 2}
 		this._frame.spawn("Default");
 		this._frame.setSize(
-			m.size + m.padding * 2 + 300, 
+			m.size + m.padding * 2 + 200, 
 			(m.size + m.padding * 2) * this._numTools - m.padding);
 		this._frame.setBlend(0, 0, 0);
 
 		this._frame.setTranslation(
 			half_res.w - this._frame.size().x - 20, 
 			-half_res.h + 20);
+
 
 		var tool;
 		
@@ -131,6 +148,16 @@ _.extend(EditorUI.prototype, {
 
 		this.setSelectedTexture(this._textureWidgets[0]);
 		this.setSelected(0);
+	},
+
+	enableInput: function()
+	{
+		this._editor.setInputEnabled(true);
+	},
+
+	disableInput: function()
+	{
+		this._editor.setInputEnabled(false);
 	},
 
 	setSelectedTexture: function(tex)
