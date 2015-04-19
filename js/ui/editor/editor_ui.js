@@ -1,3 +1,5 @@
+require("js/ui/editor/texture_widget");
+
 Enum("ToolType", [
 	"Block",
 	"Scenery"]);
@@ -16,7 +18,7 @@ var EditorUI = EditorUI || function(editor, root)
 		{path: this._path + "block_object.png", type: ToolType.Block},
 		{path: this._path + "scenery_object.png", type: ToolType.Scenery}
 	];
-
+	this._texturePanel = undefined;
 	this._numTools = 2;
 	this._tools = [];
 	this._metrics = {
@@ -47,6 +49,14 @@ _.extend(EditorUI.prototype, {
 			this._tools.push(button);
 		}
 
+		this._texturePanel = new Widget(this._frame);
+		this._textures = this._editor.map().sceneryTextures();
+		this._textureWidgets = [];
+		for (var i = 0; i < this._textures.length; ++i)
+		{
+			this._textureWidgets.push(new TextureWidget(this._textures[i], this, this._texturePanel));
+		}
+
 		this._selected = undefined;
 		this.setUI();
 	},
@@ -57,7 +67,9 @@ _.extend(EditorUI.prototype, {
 		var res = RenderSettings.resolution();
 		var half_res = {w: res.w / 2, h: res.h / 2}
 		this._frame.spawn("Default");
-		this._frame.setSize(m.size + m.padding * 2, (m.size + m.padding * 2) * this._numTools - m.padding);
+		this._frame.setSize(
+			m.size + m.padding * 2 + 400, 
+			(m.size + m.padding * 2) * this._numTools - m.padding);
 		this._frame.setBlend(0, 0, 0);
 
 		this._frame.setTranslation(
@@ -86,7 +98,43 @@ _.extend(EditorUI.prototype, {
 			tool.setOnReleased(this.onReleased, tool);
 		}
 
+		var widget;
+		for (var i = 0; i < this._textureWidgets.length; ++i)
+		{
+			widget = this._textureWidgets[i];
+			widget.setUI();
+
+			widget.setTranslation(0, i * 19);
+			widget.selected = false;
+		}
+
+		this._texturePanel.setTranslation(100, 20);
+
+		this.setSelectedTexture(this._textureWidgets[0]);
 		this.setSelected(0);
+	},
+
+	setSelectedTexture: function(tex)
+	{
+		var widget;
+		for (var i = 0; i < this._textureWidgets.length; ++i)
+		{
+			widget = this._textureWidgets[i];
+			if (widget == tex)
+			{
+				widget.setSelected();
+				continue;
+			}
+
+			widget.reset();
+		}
+
+		this._selectedTexture = tex;
+	},
+
+	selectedTexture: function()
+	{
+		return this._selectedTexture.path();
 	},
 
 	setSelected: function(idx)

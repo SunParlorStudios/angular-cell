@@ -15,6 +15,13 @@ var WorldMap = WorldMap || function()
 
 	this._editMode = CVar.get("editMode");
 
+	this._sceneryTextures = IO.filesInDirectory("textures/scenery");
+
+	for (var i = 0; i < this._sceneryTextures.length; ++i)
+	{
+		ContentManager.load("texture", this._sceneryTextures[i]);
+	}
+
 	if (this._editMode === true)
 	{
 		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0);
@@ -44,6 +51,11 @@ _.extend(WorldMap.prototype, {
 		this._player.initialise();
 	},
 
+	sceneryTextures: function()
+	{
+		return this._sceneryTextures;
+	},
+
 	editing: function()
 	{
 		return this._editing;
@@ -61,22 +73,23 @@ _.extend(WorldMap.prototype, {
 
 	createMoveable: function(x, y, type)
 	{
+		var moveable;
 		switch(type)
 		{
 			case MoveableType.Block:
-				var b = new Block(x, y, this._editMode === true);
-				this._blocks.push(b);
-				this._moveables.push(b);
+				moveable = new Block(x, y, this._editMode === true);
+				this._blocks.push(moveable);
+				this._moveables.push(moveable);
 			break;
 
 			case MoveableType.Scenery:
-				var b = new Scenery(x, y, this._editMode === true);
-				this._scenery.push(b);
-				this._moveables.push(b);
+				moveable = new Scenery(x, y, this._editMode === true);
+				this._scenery.push(moveable);
+				this._moveables.push(moveable);
 			break;
 		}
 		
-		
+		return moveable;
 	},
 
 	removeMoveable: function(moveable, type)
@@ -132,5 +145,15 @@ _.extend(WorldMap.prototype, {
 		}
 
 		this._player.update(this._blocks, dt);
+	},
+
+	save: function()
+	{
+
+	},
+
+	load: function()
+	{
+
 	}
 });
