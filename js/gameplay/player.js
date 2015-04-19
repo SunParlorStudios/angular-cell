@@ -166,6 +166,7 @@ _.extend(Player.prototype, {
 		this._pufferThrowTimer = 0;
 		this.setAnimation(this._attackAnimation);
 		this._attackAnimation.setSpeed(8);
+		this._attackAnimation.stop();
 		this._attackAnimation.play();
 		this._weaponBeingUsed = true;
 
@@ -210,12 +211,12 @@ _.extend(Player.prototype, {
 					this.setAnimation(this._walkAnimation);
 				}
 
-				if (Keyboard.isPressed(Key.F))
+				if (Mouse.isPressed(MouseButton.Left))
 				{
 					this.useWeapon();
 				}
 
-				if (Keyboard.isPressed(Key.Q))
+				if (Mouse.isPressed(MouseButton.Middle))
 				{
 					this.throwPuffer();
 				}
@@ -243,18 +244,13 @@ _.extend(Player.prototype, {
 				else if (this._pufferThrowTimer < this._pufferThrowMax)
 				{
 					this._pufferThrowTimer += dt;
-					if (this._pufferThrowTimer / this._pufferThrowMax > 0.8 && !this._thrown)
+					if (this._pufferThrowTimer / this._pufferThrowMax > 0.6 && !this._thrown)
 					{
 						this._thrown = true;
 
 						var mousePos = Mouse.position(MousePosition.Relative);
 						mousePos.x += Game.camera.translation().x;
 						mousePos.y += Game.camera.translation().y;
-
-						if (mousePos.x < this._position.x)
-							this.setScale(-1, 1);
-						else
-							this.setScale(1, 1);
 
 						var dist = Math.distance(mousePos.x, mousePos.y, this._position.x, this._position.y);
 						var a = Math.atan2(this._position.y - mousePos.y, this._position.x - mousePos.x);
@@ -263,7 +259,7 @@ _.extend(Player.prototype, {
 							new PufferFish(
 								this._position,
 								Vector2D.construct(
-									Math.cos(a) * dist * 5 * -1,
+									Math.cos(a) * dist * 7 * -1,
 									Math.sin(a) * dist * 5 * -1
 								)
 							)
@@ -381,7 +377,7 @@ _.extend(Player.prototype, {
 		this._walkAnimation.setSpeed(ratio * this._frameRate);
 		ParallaxManager.move((this._velocity.x / this._maxVelocity.x) * this._parallaxSpeed);
 		
-		if (this._pufferThrowTimer >= this._pufferThrowMax)
+		if (!this._weaponBeingUsed)
 		{
 			if (ratio < 0.025)
 			{
@@ -393,6 +389,17 @@ _.extend(Player.prototype, {
 				this.setScale(Math.abs(this._velocity.x) / this._velocity.x, 1);
 				this._walkAnimation.play();
 			}
+		}
+		else
+		{
+			var mousePos = Mouse.position(MousePosition.Relative);
+			mousePos.x += Game.camera.translation().x;
+			mousePos.y += Game.camera.translation().y;
+
+			if (mousePos.x < this._position.x)
+				this.setScale(-1, 1);
+			else
+				this.setScale(1, 1);
 		}
 
 		var wobble
