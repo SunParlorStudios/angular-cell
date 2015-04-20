@@ -127,7 +127,7 @@ _.extend(WorldMap.prototype, {
 		var ct = Game.camera.translation();
 		var z = Game.camera.zoom();
 		this._background.setTranslation(ct.x, ct.y);
-		this._background.setScale(1 / z + 0.1, 1 / z + 0.1);
+		this._background.setScale(1 / z + 0.3, 1 / z + 0.3);
 		for (var i = 0; i < this._scenery.length; ++i)
 		{
 			this._scenery[i].update(dt);
@@ -230,7 +230,9 @@ _.extend(WorldMap.prototype, {
 				sx: s.x,
 				sy: s.y,
 				texture: moveable.texture(),
-				depth: moveable.depth()
+				depth: moveable.depthNoZ(),
+				rotationSpeed: moveable.rotationSpeed(),
+				zOffset: moveable.zOffset()
 			});
 		}
 
@@ -280,6 +282,8 @@ _.extend(WorldMap.prototype, {
 			obj.setCellSize(moveable.sx === undefined ? 64 : moveable.sx, moveable.sy === undefined ? 64 : moveable.sy);
 			obj.setTexture(moveable.texture);
 			obj.setDepth(moveable.depth === undefined ? 0 : moveable.depth);
+			obj.setRotationSpeed(moveable.rotationSpeed === undefined ? 0 : moveable.rotationSpeed);
+			obj.setZOffset(moveable.zOffset === undefined ? 0 : moveable.zOffset);
 		}
 
 		Log.success("Loaded the map");

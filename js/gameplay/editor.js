@@ -46,7 +46,7 @@ _.extend(Editor.prototype, {
 		{
 			return;
 		}
-		
+
 		var p = Mouse.position(MousePosition.Relative);
 		p = Vector2D.add(this._cameraPosition, Vector2D.mul(p, 1 / this._zoom));
 
@@ -140,6 +140,26 @@ _.extend(Editor.prototype, {
 			else if (Keyboard.isReleased(Key.Plus))
 			{
 				this._selected.setDepth(this._selected.depth() - 1);
+			}
+			else if (Keyboard.isReleased(Key.R))
+			{
+				this._selected.decreaseRotationSpeed(0.1);
+			}
+			else if (Keyboard.isReleased(Key.T))
+			{
+				this._selected.increaseRotationSpeed(0.1);
+			}
+			else if (Keyboard.isReleased(Key.G))
+			{
+				this._selected.resetRotationSpeed();
+			}
+			else if (Keyboard.isDown(Key.W))
+			{
+				this._selected.increaseZOffset(dt);
+			}
+			else if (Keyboard.isDown(Key.S))
+			{
+				this._selected.decreaseZOffset(dt);
 			}
 		}
 
