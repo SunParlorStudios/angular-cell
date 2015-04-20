@@ -339,12 +339,19 @@ _.extend(WorldMap.prototype, {
 			this._pufferFish[i].destroy();
 		}
 
+		for (var i = 0; i < this._lasers.length; ++i)
+		{
+			this._lasers[i].destroy();
+			this._lasers[i]._base.destroy();
+		}
+
 		this._enemies.length = 0;
 		this._particles.length = 0;
 		this._blocks.length = 0;
 		this._scenery.length = 0;
 		this._moveables.length = 0;
 		this._pufferFish.length = 0;
+		this._lasers.length = 0;
 	},
 
 	load: function()

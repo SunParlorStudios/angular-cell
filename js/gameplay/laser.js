@@ -4,8 +4,17 @@ var Laser = Laser || function(x, y, editMode, parent)
 {
 	this._position = Vector2D.construct(x, y);
 
-	this._base = new Quad(this);
 	Laser._super.constructor.call(this, editMode, parent);
+
+	this._base = new Quad(this);
+	this._base.setDiffuseMap('textures/laser_base.png');
+	this._base.setTechnique('Diffuse');
+	this._base.setEffect('effects/cull_none.effect');
+	this._base.setSize(103, 49);
+	this._base.setRotation(0, 0, Math.PI / 2);
+	this._base.setOffset(0.5, 1);
+	this._base.setTranslation(-3, 0, 1001);
+	this._base.spawn("Default");
 }
 
 _.inherit(Laser, Moveable);
@@ -19,15 +28,6 @@ _.extend(Laser.prototype, {
 		this.setEffect("effects/cull_none.effect");
 		this.setTranslation(0, 0, 1000);
 		this.spawn("Default");
-
-		this._base.setDiffuseMap('textures/laser_base.png');
-		this._base.setTechnique('Diffuse');
-		this._base.setEffect('effects/cull_none.effect');
-		this._base.setSize(103, 49);
-		this._base.setRotation(0, 0, Math.PI / 2);
-		this._base.setOffset(0.5, 1);
-		this._base.setTranslation(-3, 0, 1001);
-		this._base.spawn("Default");
 	},
 
 	position: function ()
@@ -39,6 +39,11 @@ _.extend(Laser.prototype, {
 	{
 		this._position = Vector2D.construct(x, y);
 		this.setTranslation(this._position.x, this._position.y);
+	},
+
+	depth: function ()
+	{
+		return -2;
 	},
 
 	constructLaser: function (origin, direction, blocks)
@@ -92,7 +97,6 @@ _.extend(Laser.prototype, {
 
 	update: function (blocks, player, dt)
 	{
-		return;
 		if (this._endPoint !== false)
 		{
 			var angle = Math.atan2(this._position.y - this._endPoint.pos.y, this._position.x - this._endPoint.pos.x);
