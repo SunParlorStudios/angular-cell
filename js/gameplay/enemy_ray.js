@@ -5,7 +5,7 @@ var RayTail = RayTail || function(ray)
 	RayTail._super.constructor.call(this, ray);
 	
 	this._ray = ray;
-	this._numSegments = 20;
+	this._numSegments = 8;
 	this._previous = this._ray.translation();
 
 	this.initialise();
@@ -43,8 +43,50 @@ _.extend(RayTail.prototype, {
 		}
 	},
 
+	setParent: function(v)
+	{
+		this._ray = v;
+	},
+
 	update: function(dt)
 	{
+		if (this._ray === undefined)
+		{
+			if (this._splatting === undefined)
+			{
+				this._splatting = true;
+				for (var i = 0; i < this._segments.length; ++i)
+				{
+					this._segments[i].direction = Math.random() * Math.PI * 2;
+					this._segments[i].speed = Math.randomRange(400, 800);
+					this._segments[i].timer = 0;
+				}
+
+				return true;
+			}
+
+			for (var i = 0; i < this._segments.length; ++i)
+			{
+				seg = this._segments[i];
+				seg.translateBy(Math.cos(seg.direction) * seg.speed * dt, Math.sin(seg.direction) * seg.speed * dt);
+				seg.timer += dt;
+				seg.timer = Math.min(seg.timer, 1);
+				seg.setAlpha(1 - seg.timer);
+
+				if (seg.timer >= 1)
+				{
+					seg.destroy();
+				}
+			}
+
+			if (seg.timer >= 1)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
 		var t = this._ray.translation();
 		
 		var prev, current;
@@ -115,6 +157,11 @@ _.extend(EnemyRay.prototype, {
 		return this.translation();
 	},
 
+	canHurt: function()
+	{
+		return this._knockTimer >= 1;
+	},
+
 	hurt: function()
 	{
 		if (this._knockTimer < 1)
@@ -139,7 +186,8 @@ _.extend(EnemyRay.prototype, {
 
 	splat: function()
 	{
-
+		this._map.addParticle(this._tail);
+		this._tail.setParent(undefined);
 	},
 
 	update: function(player, blocks, dt)
@@ -153,7 +201,7 @@ _.extend(EnemyRay.prototype, {
 
 		if (this._knockTimer < 1)
 		{
-			this._knockTimer += dt * 6;
+			this._knockTimer += dt * 2;
 			this._knockTimer = Math.min(this._knockTimer, 1);
 			this.setAlpha(Math.abs(Math.sin(this._knockTimer * 10)));
 		}

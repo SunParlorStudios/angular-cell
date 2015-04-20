@@ -65,8 +65,9 @@ _.extend(WorldMap.prototype, {
 		this._player.initialise();
 
 		this._enemies = [];
-		//this._enemies.push(new Enemy());
 		this.load();
+
+		this._enemies.push(new EnemyRay(this, Math.randomRange(-1000, 1000), Math.randomRange(-400, 400)));
 	},
 
 	sceneryTextures: function()

@@ -5,6 +5,111 @@ Enum('Weapon', [
 
 require('js/gameplay/puffer_fish');
 
+var Puff = function(t, direction)
+{
+	Puff._super.constructor.call(this);
+	this._direction = direction - Math.random() * Math.PI;
+	this._speed = Math.randomRange(10, 50);
+	this._upSpeed = Math.randomRange(100, 150);
+	this._maxSpeed = this._speed;
+	this._rotationSpeed = Math.randomRange(5, 20);
+	this.setTranslation(t.x, t.y + 60, t.z - 0.1);
+
+	this.setOffset(0.5, 0.5);
+	this.setSize(48, 48);
+	this.setTechnique("Diffuse");
+	this.spawn("Default");
+
+	var tex = [
+		"textures/particles/puff_a.png",
+		"textures/particles/puff_b.png"
+	]
+	this.setDiffuseMap(tex[Math.floor(Math.random() * 2)]);
+	this.setEffect("effects/cull_none.effect");
+	this.setRotation(0, 0, Math.random() * Math.PI * 2);
+	this.setScale(0, 0);
+}
+
+_.inherit(Puff, Quad);
+
+_.extend(Puff.prototype, {
+	update: function(dt)
+	{
+		this._speed -= dt * 200;
+		this._speed = Math.max(this._speed, 0);
+		var movement = Vector2D.construct(
+			Math.cos(this._direction) * this._speed * dt,
+			Math.sin(this._direction) * this._speed * dt
+		)
+		this.translateBy(movement.x, movement.y - this._upSpeed * dt);
+		this.rotateBy(0, 0, this._rotationSpeed * dt);
+		var r = this._speed / this._maxSpeed;
+
+		this.setAlpha(r * 0.8);
+
+		this.setScale(1 - r, 1 - r);
+
+		if (r <= 0)
+		{
+			return false;
+		}
+
+		return true;
+	}
+});
+
+var HitPfx = function(t)
+{
+	HitPfx._super.constructor.call(this);
+	this._direction = Math.random() * Math.PI * 2;
+	this._speed = Math.randomRange(1000, 1300);
+	this._maxSpeed = this._speed;
+	
+	this.setTranslation(t.x, t.y, t.z - 0.1);
+
+	this.setOffset(0.5, 0.5);
+	this.setSize(64, 64);
+	this.setTechnique("Diffuse");
+	this.spawn("Default");
+
+	var tex = [
+		"textures/particles/hit_a.png",
+		"textures/particles/hit_b.png"
+	]
+	this.setDiffuseMap(tex[Math.floor(Math.random() * 2)]);
+	this.setEffect("effects/cull_none.effect");
+	this.setScale(4, 4);
+	this.setRotation(0, 0, this._direction)
+}
+
+_.inherit(HitPfx, Quad);
+
+_.extend(HitPfx.prototype, {
+	update: function(dt)
+	{
+		this._speed -= dt * 2000;
+		this._speed = Math.max(this._speed, 0);
+		var movement = Vector2D.construct(
+			Math.cos(this._direction) * this._speed * dt,
+			Math.sin(this._direction) * this._speed * dt
+		)
+		this.translateBy(movement.x, movement.y);
+		
+		var r = this._speed / this._maxSpeed;
+
+		this.setAlpha(r);
+
+		this.setScale(4 - r, 4 - r);
+
+		if (r <= 0)
+		{
+			return false;
+		}
+
+		return true;
+	}
+});
+
 var Player = function(map, parent)
 {
 	Player._super.constructor.call(this, parent);
@@ -285,6 +390,11 @@ _.extend(Player.prototype, {
 							{
 								if (Math.distance(enemies[i].position().x, enemies[i].position().y, this.position().x, this.position().y) < 256)
 								{
+									if (enemies[i].canHurt() == true)
+									{
+										this._map.addParticle(new HitPfx(this.translation()));
+									}
+									
 									enemies[i].hurt(10, this);
 									this.shake(24, 0.1);								
 								}
@@ -311,7 +421,13 @@ _.extend(Player.prototype, {
 							{
 								if (Math.distance(enemies[i].position().x, enemies[i].position().y, this.position().x, this.position().y) < 256)
 								{
+									if (enemies[i].canHurt() == true)
+									{
+										this._map.addParticle(new HitPfx(this.translation()));
+									}
+
 									enemies[i].hurt(10, this);
+									this.shake(24, 0.1);
 								}
 							}
 						}
@@ -374,11 +490,6 @@ _.extend(Player.prototype, {
 		var a = this._acceleration * dt;
 
 		this._velocity = Vector2D.add(this._velocity, Vector2D.mul(Game.gravity, Math.min(dt, 0.016)));
-
-		if (this._velocity.y > 0 || this._velocity.y < 0)
-		{
-			this._grounded = false;
-		}
 		
 		if (Keyboard.isDown(Key.A) && this._dead == false && this._punchTimer == this._punchMax)
 		{
@@ -388,6 +499,12 @@ _.extend(Player.prototype, {
 				this._velocity.x = 0;
 			this._velocity.x -= a;
 			this._velocity.x = Math.min(this._velocity.x, this._maxVelocity.x);
+
+			if (this._grounded == true)
+			{
+				var ang = this._velocity.x < 0 ? 0 : Math.PI;
+				this._map.addParticle(new Puff(this.translation(), ang));
+			}
 		}
 		else if (Keyboard.isDown(Key.D) && this._dead == false && this._punchTimer == this._punchMax)
 		{
@@ -398,6 +515,12 @@ _.extend(Player.prototype, {
 				this._velocity.x = 0;
 			this._velocity.x += a;
 			this._velocity.x = Math.min(this._velocity.x, this._maxVelocity.x);
+
+			if (this._grounded == true)
+			{
+				var ang = this._velocity.x < 0 ? 0 : Math.PI;
+				this._map.addParticle(new Puff(this.translation(), ang));
+			}
 		}
 		else if (this._velocity.x !== 0 && this._hurting == false)
 		{
@@ -414,6 +537,11 @@ _.extend(Player.prototype, {
 			{
 				this._velocity.x = 0;
 			}
+		}
+
+		if (this._velocity.y > 0 || this._velocity.y < 0)
+		{
+			this._grounded = false;
 		}
 
 		this._velocity.x = Math.max(this._velocity.x, -this._maxVelocity.x);

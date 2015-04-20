@@ -51,6 +51,11 @@ _.extend(Piranha.prototype, {
 		return this.translation();
 	},
 
+	canHurt: function()
+	{
+		return this._knockTimer >= 1;
+	},
+
 	hurt: function()
 	{
 		if (this._knockTimer < 1)
