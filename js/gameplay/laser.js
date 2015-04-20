@@ -15,6 +15,8 @@ var Laser = Laser || function(x, y, editMode, parent)
 	this._base.setOffset(0.5, 1);
 	this._base.setTranslation(-3, 0, 1001);
 	this._base.spawn("Default");
+
+	this._offset = Math.random() * Math.PI;
 }
 
 _.inherit(Laser, Moveable);
@@ -109,9 +111,16 @@ _.extend(Laser.prototype, {
 
 			this.setTranslation(this._position.x, this._position.y, 100);
 
-			this.setBlend(1, 1, 1);
+			//this.setBlend(1, 1, 1);
 
-			this.checkPlayerCollision(player);
+			this.setAlpha(Math.sin(Game.time() * 2));
+
+			this._base.setAlpha(1);
+
+			if (this.alpha() > 0.3)
+			{
+				this.checkPlayerCollision(player);
+			}
 		}
 	},
 
