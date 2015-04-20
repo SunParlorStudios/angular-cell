@@ -1,4 +1,5 @@
 require("js/gameplay/editor");
+require("js/gameplay/piranha");
 
 Enum("MoveableType", [
 	"Block",
@@ -10,12 +11,14 @@ var WorldMap = WorldMap || function()
 	this._scenery = [];
 
 	this._moveables = [];
+	this._particles = [];
 
 	this._editing = false;
 
 	this._editMode = CVar.get("editMode");
 
 	this._pufferFish = [];
+	this._distortion = this._editMode === true ? 0 : 0.3;
 
 	this._sceneryTextures = IO.filesInDirectory("textures/scenery");
 
@@ -34,13 +37,18 @@ var WorldMap = WorldMap || function()
 	}
 	else
 	{
-		RenderTargets.default.setUniform(Uniform.Float, "Distortion", 0.15);
+		RenderTargets.default.setUniform(Uniform.Float, "Distortion", this._distortion);
 	}
 
 	this._background = undefined;
 }
 
 _.extend(WorldMap.prototype, {
+	distortion: function()
+	{
+		return this._distortion;
+	},
+
 	initialise: function()
 	{
 		this._background = new Quad();
@@ -78,6 +86,13 @@ _.extend(WorldMap.prototype, {
 	blocks: function()
 	{
 		return this._blocks;
+	},
+
+	createEnemy: function(x, y)
+	{
+		var e = new Enemy();
+		e.setPosition(x, y);
+		this._enemies.push(e);
 	},
 
 	createMoveable: function(x, y, type)
@@ -124,6 +139,11 @@ _.extend(WorldMap.prototype, {
 		}
 	},
 
+	addParticle: function(particle)
+	{
+		this._particles.push(particle);
+	},
+
 	update: function(dt)
 	{
 		this._background.setBlend(50 / 255, 180 / 255, 180 / 255)
@@ -164,7 +184,7 @@ _.extend(WorldMap.prototype, {
 			}
 		}
 		
-		RenderTargets.default.setUniform(Uniform.Float, "Flicker", 0.9 + Math.random() * 0.1);
+		RenderTargets.default.setUniform(Uniform.Float, "Flicker", Math.random() * 0.3);
 
 		if (this._editing == true)
 		{
@@ -180,7 +200,7 @@ _.extend(WorldMap.prototype, {
 			if (this._enemies[i].isDead())
 			{
 				this._enemies[i].removeYourself();
-				this._enemies.pop();
+				this._enemies.splice(i, 1);
 			}
 		}
 
@@ -191,7 +211,16 @@ _.extend(WorldMap.prototype, {
 			if(this._pufferFish[i].isDead())
 			{
 				this._pufferFish[i].removeYourself();
-				//this._pufferFish.pop();
+				this._pufferFish.splice(i, 1);
+			}
+		}
+
+		for (var i = this._particles.length - 1; i >= 0; i--)
+		{
+			if (this._particles[i].update(dt) == false)
+			{
+				this._particles[i].destroy();
+				this._particles.splice(i, 1);
 			}
 		}
 	},
@@ -253,9 +282,27 @@ _.extend(WorldMap.prototype, {
 			this._moveables[i].destroyPoints();
 		}
 
+		for (var i = 0; i < this._enemies.length; ++i)
+		{
+			this._enemies[i].removeYourself();
+		}
+
+		for (var i = 0; i < this._particles.length; ++i)
+		{
+			this._particles[i].destroy();
+		}
+
+		for (var i = 0; i < this._pufferFish.length; ++i)
+		{
+			this._pufferFish[i].destroy();
+		}
+
+		this._enemies.length = 0;
+		this._particles.length = 0;
 		this._blocks.length = 0;
 		this._scenery.length = 0;
 		this._moveables.length = 0;
+		this._pufferFish.length = 0;
 	},
 
 	load: function()

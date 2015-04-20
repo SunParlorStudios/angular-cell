@@ -183,7 +183,7 @@ _.extend(PufferFish.prototype, {
 
 					for (var i = 0; i < targets.length; i++)
 					{
-						if (Math.distance(targets[i].position().x, targets[i].position().y, this.position().x, this.position().y) < this._size / 2)
+						if (Math.distance(targets[i].position().x, targets[i].position().y, this.position().x, this.position().y) < this._size / 2 && this._size == this._maxSize)
 						{
 							targets[i].hurt(10, this);
 						}

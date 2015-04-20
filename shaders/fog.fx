@@ -48,22 +48,35 @@ VOut VS(float4 position : POSITION, float4 colour : COLOUR, float2 texcoord : TE
 Texture2D TexDiffuse : register(t1);
 SamplerState Sampler;
 
-float4 PS(VOut input) : SV_TARGET
+struct PSOut
 {
+	float4 diffuse : SV_Target0;
+	float4 distort : SV_Target1;
+};
+
+PSOut PS(VOut input)
+{
+	PSOut output;
 	float x = (input.texcoord.x * AnimationCoords.z) + AnimationCoords.x;
 	float y = (input.texcoord.y * AnimationCoords.w) + AnimationCoords.y;
 	float2 coords = float2(x, y);
-	float4 diffuse = TexDiffuse.Sample(Sampler, coords);
-	diffuse.rgb *= input.colour.rgb * Blend;
-	diffuse.a *= Alpha;
+	output.diffuse = TexDiffuse.Sample(Sampler, coords);
+	output.diffuse.rgb *= input.colour.rgb * Blend;
+	output.diffuse.a *= Alpha;
 
-	if (Depth.r < 0)
+	output.distort = 0;
+
+	if (output.diffuse.r > 0.6 && output.diffuse.g < 0.1 && output.diffuse.b > 0.6)
 	{
-		return diffuse;
+		output.distort = float4(1, 1, 1, output.diffuse.a);
+		output.diffuse = 0;
+	}
+	else if (Depth.r >= 0)
+	{
+		output.diffuse.rgb = lerp(output.diffuse.rgb, float3(0.0f, 0.65f, 0.8f), Depth.r * 0.5f);
+		output.diffuse.rgb = lerp(output.diffuse.rgb, float3(0.1f, 0.5f, 0.8f), (1 - input.position.y / 720.0f) * 0.5f);
 	}
 
-	diffuse.rgb = lerp(diffuse.rgb, float3(0.0f, 0.65f, 0.8f), Depth.r);
-	diffuse.rgb = lerp(diffuse.rgb, float3(0.1f, 0.5f, 0.8f), 1 - input.position.y / 720.0f);
-
-	return diffuse;
+	
+	return output;
 }

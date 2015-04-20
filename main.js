@@ -14,6 +14,7 @@ require("js/ui/button");
 
 var RenderTargets = RenderTargets || {
 	default: new RenderTarget("Default"),
+	distort: new RenderTarget("Distort")
 }
 
 Game.Initialise = function()
@@ -24,6 +25,7 @@ Game.Initialise = function()
 	ContentManager.load("effect", "effects/cull_none.effect");
 	RenderTargets.default.setLightingEnabled(false);
 	RenderTargets.default.setTechnique('Diffuse');
+	RenderTargets.default.addMultiTarget(RenderTargets.distort);
 
 	Window.setName("Angler Cell");
 	Window.setSize(1280, 720);

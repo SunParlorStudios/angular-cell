@@ -36,14 +36,21 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/Environment/Fish_Tank.png");
 		ContentManager.load("texture", "textures/Environment/BG_Color.png");
 		ContentManager.load("texture", "textures/Environment/Camera_Gradient.png");
-		ContentManager.load("texture", "textures/starfish.png");
 		ContentManager.load("texture", "textures/laser.png");
+		ContentManager.load("texture", "textures/camera_gradient.png");
 		ContentManager.load("texture", "textures/ui/crosshair.png");
+		ContentManager.load("texture", "textures/particles/piranha_jaw.png");
+		ContentManager.load("texture", "textures/particles/piranha_mouth.png");
+		ContentManager.load("texture", "textures/particles/piranha_eye.png");
+		ContentManager.load("texture", "textures/particles/piranha_body.png");
 		ContentManager.load("anim", "animations/player_walk.anim");
 		ContentManager.load("anim", "animations/player_punch.anim");
 		ContentManager.load("anim", "animations/player_death.anim");
 		ContentManager.load("anim", "animations/player_attack.anim");
 		ContentManager.load("anim", "animations/player_hurt.anim");
+		ContentManager.load("anim", "animations/piranha_swim.anim");
+		ContentManager.load("anim", "animations/piranha_idle.anim");
+		ContentManager.load("anim", "animations/piranha_death.anim");
 		ContentManager.load("anim", "animations/puffer_fish.anim");
 		ContentManager.load("anim", "animations/weapon_hammer_head.anim");
 		ContentManager.load("anim", "animations/weapon_sword_fish.anim");
@@ -64,7 +71,7 @@ _.extend(Menu.prototype, {
 
 		this._gradient = new Widget();
 		this._gradient.setSize(1280, 360);
-		this._gradient.setDiffuseMap("textures/Environment/Camera_Gradient.png");
+		this._gradient.setDiffuseMap("textures/camera_gradient.png");
 		this._gradient.setOffset(0.5, 1);
 
 		this._gradient.spawn("Default");
@@ -87,7 +94,7 @@ _.extend(Menu.prototype, {
 		mousePos = Vector2D.mul(Vector2D.add(mousePos, Vector2D.construct(1, 1)), 0.5);
 
 		var cc = Vector2D.sub(mousePos, Vector2D.construct(0.5, 0.5));
-    	var dist = Vector2D.dot(cc, cc) * 0.15;
+    	var dist = Vector2D.dot(cc, cc) * this._worldMap.distortion();
 
     	cc = Vector2D.mul(Vector2D.mul(cc, dist + 1), dist);
 

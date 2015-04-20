@@ -32,6 +32,7 @@ VOut VS(float4 position : POSITION, float4 colour : COLOUR, float2 texcoord : TE
 }
 
 Texture2D Target : register(t0);
+Texture2D Distort : register(t1);
 SamplerState Sampler;
 
 float4 PS(VOut input) : SV_TARGET
@@ -43,6 +44,14 @@ float4 PS(VOut input) : SV_TARGET
 
     clip(coords - 0.001);
     clip((1.0f - coords) - 0.001);
+
+    float d = Distort.Sample(Sampler, coords).r;
+
+    if (d > 0)
+    {
+        coords.y += 0.06;
+        coords.y /= 1.2;
+    }
 
     float4 avg = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float filterSize = 16.0f;
@@ -69,12 +78,14 @@ float4 PS(VOut input) : SV_TARGET
     col.rgb = saturate(col.rgb);
     col.rgb /= 1.5;
 
+    float gray = (col.r + col.g + col.b) / 3.0f;
+
+    col.rgb = lerp(col.rgb, gray, Flicker.x);
+
     if (delta_squared < 0.1) 
     {
-       return col;
+       return col * 0.9;
     } 
-
-    col.rgb *= Flicker.x;
 
     return col;
 }
