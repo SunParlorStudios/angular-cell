@@ -322,6 +322,11 @@ _.extend(Player.prototype, {
 		this._shakeTimer = 0;
 	},
 
+	velocity: function()
+	{
+		return this._velocity;
+	},
+
 	move: function(dt, enemies, map)
 	{
 		if (this._shakeTimer < 1)
@@ -489,7 +494,7 @@ _.extend(Player.prototype, {
 
 		var a = this._acceleration * dt;
 
-		this._velocity = Vector2D.add(this._velocity, Vector2D.mul(Game.gravity, 0.016));
+		this._velocity = Vector2D.add(this._velocity, Vector2D.mul(Game.gravity, Math.min(dt, 0.016)));
 		
 		if (Keyboard.isDown(Key.A) && this._dead == false && this._punchTimer == this._punchMax)
 		{
