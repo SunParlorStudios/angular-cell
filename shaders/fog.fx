@@ -57,7 +57,7 @@ float4 PS(VOut input) : SV_TARGET
 	diffuse.rgb *= input.colour.rgb * Blend;
 	diffuse.a *= Alpha;
 
-	diffuse.rgb = lerp(diffuse.rgb, float3(15.0f / 255.0f, 95.0f / 255.0f, 55.0f / 255.0f), Depth.r);
+	diffuse.rgb = lerp(diffuse.rgb, float3(0.0f, 0.8f, 1.0f), Depth.r);
 	diffuse.rgb = lerp(diffuse.rgb, float3(0.1f, 0.5f, 0.8f), 1 - input.position.y / 720.0f);
 
 	return diffuse;

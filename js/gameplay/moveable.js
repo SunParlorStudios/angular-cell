@@ -11,12 +11,40 @@ var Moveable = Moveable || function(editMode, parent)
 		this.createDragPoints();
 	}
 
+	this._rotationSpeed = 0;
+	this._zOffset = 0;
 	this.initialise();
 }
 
 _.inherit(Moveable, Quad);
 
 _.extend(Moveable.prototype, {
+	increaseRotationSpeed: function(spd)
+	{
+		this._rotationSpeed += spd;
+	},
+
+	decreaseRotationSpeed: function(spd)
+	{
+		this._rotationSpeed -= spd;
+	},
+
+	resetRotationSpeed: function()
+	{
+		this._rotationSpeed = 0;
+		this.setRotation(0, 0, 0);
+	},
+
+	setRotationSpeed: function(spd)
+	{
+		this._rotationSpeed = spd;
+	},
+
+	rotationSpeed: function()
+	{
+		return this._rotationSpeed;
+	},
+
 	setDepth: function()
 	{
 
@@ -24,7 +52,35 @@ _.extend(Moveable.prototype, {
 
 	depth: function()
 	{
+		return this._depth + this._zOffset;
+	},
+
+	depthNoZ: function()
+	{
 		return this._depth;
+	},
+
+	increaseZOffset: function(v)
+	{
+		this._zOffset += v;
+		this.setDepth(this._depth);
+	},
+
+	decreaseZOffset: function(v)
+	{
+		this._zOffset -= v;
+		this.setDepth(this._depth);
+	},
+
+	zOffset: function()
+	{
+		return this._zOffset;
+	},
+
+	setZOffset: function(v)
+	{
+		this._zOffset = v;
+		this.setDepth(this._depth);
 	},
 
 	position: function()
