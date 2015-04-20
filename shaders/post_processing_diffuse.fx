@@ -54,7 +54,7 @@ float4 PS(VOut input) : SV_TARGET
     }
 
     float4 avg = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    float filterSize = 16.0f;
+    float filterSize = 4.0f;
     float count = 0.0f;
 
     float4 col = Target.Sample(Sampler, coords);
