@@ -174,7 +174,11 @@ _.extend(Editor.prototype, {
 
 		if (Mouse.isReleased(MouseButton.Right))
 		{
-			if (this._selected === undefined || (this._selected !== undefined && !Keyboard.isDown(Key.R)))
+			if (this._tool == ToolType.Enemy)
+			{
+				this._map.createEnemy(p.x, p.y);
+			}
+			else if (this._selected === undefined || (this._selected !== undefined && !Keyboard.isDown(Key.R)))
 			{
 				var moveable = this._map.createMoveable(p.x, p.y, this._tool);
 				if (this._tool == MoveableType.Scenery)

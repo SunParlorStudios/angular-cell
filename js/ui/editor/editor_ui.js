@@ -88,8 +88,8 @@ _.extend(EditorUI.prototype, {
 		var half_res = {w: res.w / 2, h: res.h / 2}
 		this._frame.spawn("Default");
 		this._frame.setSize(
-			m.size + m.padding * 2 + 200, 
-			(m.size + m.padding * 2) * this._numTools - m.padding);
+			m.size + m.padding * 2 + 250, 
+			(m.size + m.padding * 2) * this._numTools - m.padding + 400); 
 		this._frame.setBlend(0, 0, 0);
 
 		this._frame.setTranslation(
@@ -125,7 +125,7 @@ _.extend(EditorUI.prototype, {
 			widget = this._textureWidgets[i];
 			widget.setUI();
 
-			widget.setTranslation(0, i * 23);
+			widget.setTranslation(0, i * 18);
 			widget.selected = false;
 		}
 

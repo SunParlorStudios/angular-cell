@@ -58,6 +58,12 @@ _.extend(Enemy.prototype, {
 		return this._position;
 	},
 
+	setPosition: function(x, y)
+	{
+		this._position = Vector2D.construct(x, y);
+		this.setTranslation(x, y);
+	},
+
 	update: function (target, blocks, dt)
 	{
 		this.move(target, dt);

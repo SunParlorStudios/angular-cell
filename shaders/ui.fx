@@ -44,16 +44,27 @@ VOut VS(float4 position : POSITION, float4 colour : COLOUR, float2 texcoord : TE
 	return output;
 }
 
+struct PSOut
+{
+	float4 diffuse : SV_Target0;
+	float4 distort : SV_Target1;
+};
+
 Texture2D TexDiffuse : register(t1);
 SamplerState Sampler;
 
-float4 PS(VOut input) : SV_TARGET
+PSOut PS(VOut input)
 {
+	PSOut output;
+
 	float x = (input.texcoord.x * AnimationCoords.z) + AnimationCoords.x;
 	float y = (input.texcoord.y * AnimationCoords.w) + AnimationCoords.y;
 	float2 coords = float2(x, y);
 	float4 diffuse = TexDiffuse.Sample(Sampler, coords);
 	diffuse.rgb *= input.colour.rgb * Blend;
 	diffuse.a *= Alpha;
-	return diffuse;
+
+	output.diffuse = diffuse;
+	output.distort = 0;
+	return output;
 }

@@ -45,12 +45,22 @@ VOut VS(float4 position : POSITION, float4 colour : COLOUR, float2 texcoord : TE
 	return output;
 }
 
+struct PSOut
+{
+	float4 diffuse : SV_Target0;
+	float4 distort : SV_Target1;
+};
+
 Texture2D TexDiffuse : register(t1);
 
 SamplerState Sampler;
 
-float4 PS(VOut input) : SV_TARGET
+PSOut PS(VOut input)
 {
+	PSOut output;
+
+	output.distort = 0;
+
 	float shift = input.shift;
 	float3 font_atlas_vector = float3(1.0 / 2048, 1.0 / 2048, 4);
 
@@ -90,5 +100,6 @@ float4 PS(VOut input) : SV_TARGET
 	float4 colour = float4(1, 1, 1, (r + g + b) / 3.0);
 
 	float alpha = colour.a * input.colour.a * Alpha;
-	return float4(colour.rgb * input.colour.rgb * Blend, alpha);
+	output.diffuse = float4(colour.rgb * input.colour.rgb * Blend, alpha);
+	return output;
 }

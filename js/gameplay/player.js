@@ -13,7 +13,7 @@ var Player = function(map, parent)
 	this._maxVelocity = Vector2D.construct(800, 2000);
 	this._position = Vector2D.construct(0, -300);
 	this._jumpHeight = 1200;
-	this._hurtForce = Vector2D.construct(1300, -700);
+	this._hurtForce = Vector2D.construct(2000, -1200);
 	this._margin = 10;
 	this._wobbleSpeed = 20;
 	this._wobbleAngle = 16;
@@ -39,9 +39,9 @@ var Player = function(map, parent)
 	this._weaponBeingUsed = false;
 	this._weaponInUse = 0;
 	this._hammerHeadTimer = 0;
-	this._hammerHeadMax = 0.4;
+	this._hammerHeadMax = 0.6;
 	this._swordFishTimer = 0;
-	this._swordFishMax = 0.6;
+	this._swordFishMax = 0.4;
 
 	this._pufferThrowMax = 0.2;
 	this._pufferThrowTimer = this._pufferThrowMax;
@@ -56,10 +56,11 @@ var Player = function(map, parent)
 	this._weapon.setEffect("effects/cull_none.effect");
 	this._weapon.setTechnique("Diffuse");
 	this._weapon.setOffset(0.5, 0.5);
-	this._weapon.setTranslation(0, -90, 99);
+	this._weapon.setTranslation(0, -90, -9);
 	this._weapon.spawn("Default");
 
 	this._currentWeapon = Weapon.SwordFish;
+	this._shakeTimer = 1;
 }
 
 _.inherit(Player, Quad);
@@ -72,7 +73,6 @@ _.extend(Player.prototype, {
 		this.setEffect("effects/cull_none.effect");
 		this.setTechnique("Diffuse");
 		this.setOffset(0.5, 0.5);
-		this.setZ(101);
 
 		this.setDiffuseMap("textures/player/player_sheet.png");
 		this._walkAnimation = new SpriteAnimation("animations/player_walk.anim", "textures/player/player_sheet.png");
@@ -95,6 +95,8 @@ _.extend(Player.prototype, {
 
 		this._weapon.setAnimation(this._weaponEmptyAnimation);
 		this._weaponEmptyAnimation.play();
+		this._camPos = Vector2D.construct(0, 0);
+		this._weaponHit = false;
 	},
 
 	size: function()
@@ -159,7 +161,7 @@ _.extend(Player.prototype, {
 				this._swordFishTimer = 0;
 
 				this._weapon.setRotation(0, 0, 0);
-				this._weapon.setTranslation(0, 0, 0);
+				this._weapon.setTranslation(0, 0, -9);
 				this._weapon.setSize(256, 256);
 				this._weapon.setOffset(0, 0.5);
 				this._weapon.setDiffuseMap('textures/player/weapons.png');
@@ -178,7 +180,7 @@ _.extend(Player.prototype, {
 				this._hammerHeadTimer = 0;
 
 				this._weapon.setRotation(0, 0, 0.12);
-				this._weapon.setTranslation(0, -90, 99);
+				this._weapon.setTranslation(0, -90, -9);
 				this._weapon.setOffset(0.5, 0.5);
 				this._weapon.setSize(512, 256);
 				this._weapon.setDiffuseMap("textures/player/hammer_head.png");
@@ -208,18 +210,22 @@ _.extend(Player.prototype, {
 		this._thrown = false;
 	},
 
+	shake: function(mag, duration)
+	{
+		this._magnitude = mag;
+		this._shakeDuration = duration;
+		this._shakeTimer = 0;
+	},
+
 	move: function(dt, enemies, map)
 	{
-		if (this._dead == true)
+		if (this._shakeTimer < 1)
 		{
-			if (this._deathTimer < this._deathMax)
-			{
-				var shake = Math.shake(33, this._deathTimer);
-				Game.camera.setTranslation(this._camPos.x + shake.x, this._camPos.y + shake.y, 0);
-				this._deathTimer += dt * 3;
+			var shake = Math.shake(this._magnitude, this._shakeTimer);
+			Game.camera.setTranslation(this._camPos.x + shake.x, this._camPos.y + shake.y, 0);
+			this._shakeTimer += dt * 1 / this._duration;
 
-				this._deathTimer = Math.min(this._deathTimer, this._deathMax);
-			}
+			this._shakeTimer = Math.min(this._shakeTimer, 1);
 		}
 
 		if (this._dead == false)
@@ -279,8 +285,8 @@ _.extend(Player.prototype, {
 							{
 								if (Math.distance(enemies[i].position().x, enemies[i].position().y, this.position().x, this.position().y) < 256)
 								{
-									this._weaponHit = true;
 									enemies[i].hurt(10, this);
+									this.shake(24, 0.1);								
 								}
 							}
 						}
@@ -305,7 +311,6 @@ _.extend(Player.prototype, {
 							{
 								if (Math.distance(enemies[i].position().x, enemies[i].position().y, this.position().x, this.position().y) < 256)
 								{
-									this._weaponHit = true;
 									enemies[i].hurt(10, this);
 								}
 							}
@@ -382,6 +387,7 @@ _.extend(Player.prototype, {
 			if (this._velocity.x > 0)
 				this._velocity.x = 0;
 			this._velocity.x -= a;
+			this._velocity.x = Math.min(this._velocity.x, this._maxVelocity.x);
 		}
 		else if (Keyboard.isDown(Key.D) && this._dead == false && this._punchTimer == this._punchMax)
 		{
@@ -391,8 +397,9 @@ _.extend(Player.prototype, {
 			if (this._velocity.x < 0)
 				this._velocity.x = 0;
 			this._velocity.x += a;
+			this._velocity.x = Math.min(this._velocity.x, this._maxVelocity.x);
 		}
-		else if (this._velocity.x !== 0)
+		else if (this._velocity.x !== 0 && this._hurting == false)
 		{
 			if (this._velocity.x > 0)
 			{
@@ -409,7 +416,6 @@ _.extend(Player.prototype, {
 			}
 		}
 
-		this._velocity.x = Math.min(this._velocity.x, this._maxVelocity.x);
 		this._velocity.x = Math.max(this._velocity.x, -this._maxVelocity.x);
 
 		this._velocity.y = Math.min(this._velocity.y, this._maxVelocity.y);
@@ -427,7 +433,11 @@ _.extend(Player.prototype, {
 		if (dist > this._maxCameraDistance)
 		{
 			var r = dist / this._maxCameraDistance;
-			Game.camera.translateBy((t.x - ct.x) * r * dt * this._camSpeed, (t.y - 100 - ct.y) * r * dt * this._camSpeed, 0, 1);
+			var mx = (t.x - ct.x) * r * dt * this._camSpeed;
+			var my = (t.y - 100 - ct.y) * r * dt * this._camSpeed;
+			Game.camera.translateBy(mx, my, 0, 1);
+			this._camPos.x += mx;
+			this._camPos.y += my;
 		}
 
 		if (this._dead == true)
@@ -499,7 +509,7 @@ _.extend(Player.prototype, {
 				this.setAnimation(this._hurtAnimation);
 			}
 
-			this._hurtTimer += dt;
+			this._hurtTimer += dt * 3;
 			this.setAlpha(Math.abs(Math.sin(this._hurtTimer * 20)));
 
 			if (this._hurtTimer > this._hurtMax)
@@ -511,7 +521,7 @@ _.extend(Player.prototype, {
 			}
 		}
 		
-		this.setTranslation(t.x, t.y + wobble, -3);
+		this.setTranslation(t.x, t.y + wobble, -10);
 	},
 
 	hurt: function (damage, source)
@@ -522,8 +532,9 @@ _.extend(Player.prototype, {
 
 			if (this._health <= 0)
 			{
+				this.shake(33, 3);
 				this.setRotation(0, 0, 0);
-				this._camPos = Game.camera.translation();
+				
 				this._dead = true;
 				this.setAnimation(this._deathAnimation);
 				this._deathAnimation.stop();
@@ -534,14 +545,14 @@ _.extend(Player.prototype, {
 				if (this.scale().x < 0)
 				{
 					this._velocity = {
-						x: -1200,
+						x: -2000,
 						y: -800
 					}
 				}
 				else
 				{
 					this._velocity = {
-						x: 1200,
+						x: 2000,
 						y: -800
 					}
 				}
