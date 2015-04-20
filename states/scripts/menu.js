@@ -6,6 +6,7 @@ require("js/gameplay/block");
 require("js/gameplay/fish_tank");
 require("js/gameplay/projectile");
 require("js/gameplay/world_map");
+require("js/gameplay/laser");
 
 /** 
  * The menu state
@@ -36,6 +37,7 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/Environment/BG_Color.png");
 		ContentManager.load("texture", "textures/Environment/Camera_Gradient.png");
 		ContentManager.load("texture", "textures/starfish.png");
+		ContentManager.load("texture", "textures/laser.png");
 		ContentManager.load("texture", "textures/ui/crosshair.png");
 		ContentManager.load("anim", "animations/player_walk.anim");
 		ContentManager.load("anim", "animations/player_punch.anim");
