@@ -1,5 +1,6 @@
 require("js/gameplay/editor");
 require("js/gameplay/piranha");
+require("js/gameplay/enemy_ray");
 
 Enum("MoveableType", [
 	"Block",

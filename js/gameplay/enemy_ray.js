@@ -1,11 +1,83 @@
 require("js/gameplay/piranha_debris");
 
-var Piranha = Piranha || function(map, x, y, parent)
+var RayTail = RayTail || function(ray)
 {
-	Piranha._super.constructor.call(this, parent);
+	RayTail._super.constructor.call(this, ray);
+	
+	this._ray = ray;
+	this._numSegments = 20;
+	this._previous = this._ray.translation();
+
+	this.initialise();
+}
+
+_.inherit(RayTail, Quad);
+
+_.extend(RayTail.prototype, {
+	initialise: function()
+	{
+		this._segments = [];
+		this._segmentSize = 24;
+
+		var seg, r;
+		for (var i = 0; i < this._numSegments + 1; ++i)
+		{
+			r = 1 - (i / (this._numSegments + 1) / 2);
+			seg = new Quad();
+			seg.setSize(64 * r, 64 * r);
+			seg.setOffset(0, 0.5);
+			seg.setTranslation(this._ray.translation().x - i * this._segmentSize, this._ray.translation().y);
+			if (i < this._numSegments)
+			{
+				seg.setDiffuseMap("textures/ray/ray_tail.png");
+			}
+			else
+			{
+				seg.setDiffuseMap("textures/ray/ray_spike.png");
+			}
+			seg.spawn("Default");
+			seg.setEffect("effects/cull_none.effect");
+			seg.setTechnique("Diffuse");
+			seg.setZ(105);
+			this._segments.push(seg);
+		}
+	},
+
+	update: function(dt)
+	{
+		var t = this._ray.translation();
+		
+		var prev, current;
+		var delta, angle, pos, s;
+		for (var i = 0; i < this._segments.length; ++i)
+		{
+			if (i == 0)
+			{
+				prev = this._ray;
+
+			}
+			else
+			{
+				prev = this._segments[i - 1];
+			}
+			
+			current = this._segments[i];
+			delta = Vector2D.sub(prev.translation(), current.translation());
+			s = i == 0 ? 0 : this._segmentSize;
+			angle = Math.atan2(delta.y, delta.x) + Math.PI;
+			pos = Vector2D.add(prev.translation(), Vector2D.construct(Math.cos(angle) * s, Math.sin(angle) * s));
+			current.setTranslation(pos.x, pos.y);
+			current.setRotation(0, 0, angle + Math.PI);
+		}
+	}
+})
+
+var EnemyRay = EnemyRay || function(map, x, y, parent)
+{
+	EnemyRay._super.constructor.call(this, parent);
 	this._dead = false;
 	this._maxDistance = 640;
-	this._speed = 700;
+	this._speed = 400;
 	this._maxSpeed = this._speed;
 	this._speed = 0;
 	this._map = map;
@@ -14,36 +86,28 @@ var Piranha = Piranha || function(map, x, y, parent)
 	this._randomAngle = Math.random() * Math.PI * 2;
 	this._randomRadius = Math.randomRange(20, 240);
 	this.setZ(105);
+	this._tail = new RayTail(this);
 }
 
-_.inherit(Piranha, Quad);
+_.inherit(EnemyRay, Quad);
 
-_.extend(Piranha.prototype, {
+_.extend(EnemyRay.prototype, {
 	initialise: function()
 	{
-		this._idleAnimation = new SpriteAnimation("animations/piranha_idle.anim", "textures/player/weapons.png");
-		this._swimAnimation = new SpriteAnimation("animations/piranha_swim.anim", "textures/player/weapons.png");
-		this._deathAnimation = new SpriteAnimation("animations/piranha_death.anim", "textures/player/weapons.png");
-
-		this.setDiffuseMap("textures/player/weapons.png");
-		this.setSize(96, 96);
-		this.setOffset(0.5, 0.5);
+		this.setDiffuseMap("textures/ray/ray.png");
+		this.setSize(256, 256);
+		this.setOffset(0, 0.5);
 		this.setEffect("effects/cull_none.effect");
 		this.setTechnique("Diffuse");
 
 		this.spawn("Default");
 
-		this.setAnimation(this._idleAnimation);
-		this._idleAnimation.play();
-
 		this._wobble = 0;
 		this._wobbleHeight = 100;
-		this._wobbleSpeed = 10;
-		this._health = 4;
+		this._wobbleSpeed = 2;
+		this._health = 8;
 		this._knockTimer = 1;
 		this._lockedOn = false;
-
-		this.setScale(Math.round(Math.randomRange(-1, 1)), 1);
 	},
 
 	position: function()
@@ -69,32 +133,27 @@ _.extend(Piranha.prototype, {
 
 	knockBack: function()
 	{
-		this._speed = -this._maxSpeed / 5;
+		this._speed = -this._maxSpeed / 2;
 		this._knockTimer = 0;
 	},
 
 	splat: function()
 	{
-		var p;
-		for (var i = 0; i < 4; ++i)
-		{
-			p = new PiranhaDebris(this.translation().x, this.translation().y, i);
-			this._map.addParticle(p);
-		}
+
 	},
 
 	update: function(player, blocks, dt)
 	{
-
+		this._tail.update(dt);
 		if (this._speed < this._maxSpeed)
 		{
-			this._speed += 400 * dt;
+			this._speed += 3000 * dt;
 			this._speed = Math.min(this._speed, this._maxSpeed);
 		}
 
 		if (this._knockTimer < 1)
 		{
-			this._knockTimer += dt * 2;
+			this._knockTimer += dt * 6;
 			this._knockTimer = Math.min(this._knockTimer, 1);
 			this.setAlpha(Math.abs(Math.sin(this._knockTimer * 10)));
 		}
@@ -116,10 +175,6 @@ _.extend(Piranha.prototype, {
 
 		if (this._lockedOn == false)
 		{
-			this.setBlend(0, 1, 0);
-			this.setAnimation(this._idleAnimation);
-			this._idleAnimation.play();
-
 			if (dist < this._maxDistance)
 			{
 				this._lockedOn = true;
@@ -131,11 +186,8 @@ _.extend(Piranha.prototype, {
 		{
 			if (dist < 16)
 			{
-				player.hurt(8, this);
+				player.hurt(16, this);
 			}
-			this.setBlend(1, 0, 0);
-			this.setAnimation(this._swimAnimation);
-			this._swimAnimation.play();
 
 			var a = Math.atan2(p.y - t.y, p.x - t.x);
 			var degrees = (a + Math.PI) * 180 / Math.PI;
@@ -155,7 +207,7 @@ _.extend(Piranha.prototype, {
 			)
 			this.translateBy(movement.x, movement.y);
 
-			this.setRotation(0, 0, a + Math.PI);
+			this.setRotation(0, 0, a);
 		}
 	},
 

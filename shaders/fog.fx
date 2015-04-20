@@ -61,6 +61,9 @@ PSOut PS(VOut input)
 	float y = (input.texcoord.y * AnimationCoords.w) + AnimationCoords.y;
 	float2 coords = float2(x, y);
 	output.diffuse = TexDiffuse.Sample(Sampler, coords);
+	float4 rim = TexDiffuse.Sample(Sampler, coords + float2(-0.0005f, 0.0005f));
+	rim.a *= Alpha;
+
 	output.diffuse.rgb *= input.colour.rgb * Blend;
 	output.diffuse.a *= Alpha;
 
@@ -75,6 +78,11 @@ PSOut PS(VOut input)
 	{
 		output.diffuse.rgb = lerp(output.diffuse.rgb, float3(0.0f, 0.65f, 0.8f), Depth.r * 0.5f);
 		output.diffuse.rgb = lerp(output.diffuse.rgb, float3(0.1f, 0.5f, 0.8f), (1 - input.position.y / 720.0f) * 0.5f);
+	}
+
+	if (output.diffuse.a < rim.a - 0.02)
+	{
+		output.diffuse = float4(0.4, 1, 1, smoothstep(1, 0, rim.a / 2));
 	}
 
 	

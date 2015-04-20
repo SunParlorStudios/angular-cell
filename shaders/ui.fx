@@ -65,6 +65,6 @@ PSOut PS(VOut input)
 	diffuse.a *= Alpha;
 
 	output.diffuse = diffuse;
-	output.distort = 0;
+	output.distort = float4(0, 0, 0, diffuse.a);
 	return output;
 }

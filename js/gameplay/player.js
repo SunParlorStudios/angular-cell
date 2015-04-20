@@ -13,7 +13,7 @@ var Player = function(map, parent)
 	this._maxVelocity = Vector2D.construct(800, 2000);
 	this._position = Vector2D.construct(0, -300);
 	this._jumpHeight = 1200;
-	this._hurtForce = Vector2D.construct(2000, -1200);
+	this._hurtForce = Vector2D.construct(800, -1200);
 	this._margin = 10;
 	this._wobbleSpeed = 20;
 	this._wobbleAngle = 16;
@@ -34,7 +34,7 @@ var Player = function(map, parent)
 	this._map = map;
 	this._dead = false;
 
-	this._health = 100;
+	this._health = 20;
 
 	this._weaponBeingUsed = false;
 	this._weaponInUse = 0;
@@ -545,14 +545,14 @@ _.extend(Player.prototype, {
 				if (this.scale().x < 0)
 				{
 					this._velocity = {
-						x: -2000,
+						x: -1200,
 						y: -800
 					}
 				}
 				else
 				{
 					this._velocity = {
-						x: 2000,
+						x: 1200,
 						y: -800
 					}
 				}

@@ -37,6 +37,9 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/particles/piranha_mouth.png");
 		ContentManager.load("texture", "textures/particles/piranha_eye.png");
 		ContentManager.load("texture", "textures/particles/piranha_body.png");
+		ContentManager.load("texture", "textures/ray/ray.png");
+		ContentManager.load("texture", "textures/ray/ray_tail.png");
+		ContentManager.load("texture", "textures/ray/ray_spike.png");
 		ContentManager.load("anim", "animations/player_walk.anim");
 		ContentManager.load("anim", "animations/player_punch.anim");
 		ContentManager.load("anim", "animations/player_death.anim");
