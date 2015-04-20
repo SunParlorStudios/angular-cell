@@ -489,7 +489,7 @@ _.extend(Player.prototype, {
 
 		var a = this._acceleration * dt;
 
-		this._velocity = Vector2D.add(this._velocity, Vector2D.mul(Game.gravity, dt));
+		this._velocity = Vector2D.add(this._velocity, Vector2D.mul(Game.gravity, 0.016));
 		
 		if (Keyboard.isDown(Key.A) && this._dead == false && this._punchTimer == this._punchMax)
 		{

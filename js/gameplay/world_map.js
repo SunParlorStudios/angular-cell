@@ -152,6 +152,15 @@ _.extend(WorldMap.prototype, {
 			this._scenery.splice(this._scenery.indexOf(moveable), 1);
 			return;
 		}
+
+		idx = this._lasers.indexOf(moveable);
+
+		if (idx !== -1)
+		{
+			moveable._base.destroy();
+			this._lasers.splice(this._lasers.indexOf(moveable), 1);
+			return;
+		}
 	},
 
 	addParticle: function(particle)
@@ -204,7 +213,7 @@ _.extend(WorldMap.prototype, {
 
 		for (var i = this._lasers.length - 1; i >= 0; i--)
 		{
-			this._lasers[i].update(this._blocks, dt);
+			this._lasers[i].update(this._blocks, this._player, dt);
 		}
 
 		if (this._editing == true)

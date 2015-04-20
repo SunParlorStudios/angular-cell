@@ -4,6 +4,7 @@ var Laser = Laser || function(x, y, editMode, parent)
 {
 	this._position = Vector2D.construct(x, y);
 
+	this._base = new Quad(this);
 	Laser._super.constructor.call(this, editMode, parent);
 }
 
@@ -18,6 +19,20 @@ _.extend(Laser.prototype, {
 		this.setEffect("effects/cull_none.effect");
 		this.setTranslation(0, 0, 1000);
 		this.spawn("Default");
+
+		this._base.setDiffuseMap('textures/laser_base.png');
+		this._base.setTechnique('Diffuse');
+		this._base.setEffect('effects/cull_none.effect');
+		this._base.setSize(103, 49);
+		this._base.setRotation(0, 0, Math.PI / 2);
+		this._base.setOffset(0.5, 1);
+		this._base.setTranslation(-3, 0, 1001);
+		this._base.spawn("Default");
+	},
+
+	position: function ()
+	{
+		return this._position;
 	},
 
 	setPosition: function(x, y)
@@ -60,7 +75,22 @@ _.extend(Laser.prototype, {
 		this._endPoint = minHit;
 	},
 
-	update: function (blocks, dt)
+	checkPlayerCollision: function (player)
+	{
+		var start = this._position;
+		var end = {
+			x: Math.cos(Math.atan2(this._direction.y, this._direction.x)) * Math.distance(start.x, start.y, this._endPoint.pos.x, this._endPoint.pos.y),
+			y: Math.sin(Math.atan2(this._direction.y, this._direction.x)) * Math.distance(start.x, start.y, this._endPoint.pos.x, this._endPoint.pos.y)
+		};
+
+		var result = Ray.boxIntersection(this._ray, player, start, end, 0, 0);
+		if (result !== null)
+		{
+			player.hurt(0, this);
+		}
+	},
+
+	update: function (blocks, player, dt)
 	{
 		if (this._endPoint !== false)
 		{
@@ -70,11 +100,13 @@ _.extend(Laser.prototype, {
 
 			this.setRotation(0, 0, angle + Math.PI);
 
-			this.setSize(size, 30);
+			this.setSize(size, Math.clamp(Math.abs(Math.sin(Game.time() * 20) * 30), 25, 30));
 
 			this.setTranslation(this._position.x, this._position.y, 100);
 
 			this.setBlend(1, 1, 1);
+
+			this.checkPlayerCollision(player);
 		}
 	},
 
