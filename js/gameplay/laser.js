@@ -93,7 +93,7 @@ _.extend(Laser.prototype, {
 		var result = Ray.boxIntersection(this._ray, player, start, end, 0, 0);
 		if (result !== null)
 		{
-			player.hurt(0, this);
+			player.hurt(1, this);
 		}
 	},
 

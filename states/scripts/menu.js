@@ -36,6 +36,9 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/laser_base.png");
 		ContentManager.load("texture", "textures/camera_gradient.png");
 		ContentManager.load("texture", "textures/ui/crosshair.png");
+		ContentManager.load("texture", "textures/ui/GUI/gui_corner_piece.png");
+		ContentManager.load("texture", "textures/ui/GUI/gui_health_bar_border.png");
+		ContentManager.load("texture", "textures/ui/GUI/gui_health_bar_fill.png");
 		ContentManager.load("texture", "textures/particles/piranha_jaw.png");
 		ContentManager.load("texture", "textures/particles/piranha_mouth.png");
 		ContentManager.load("texture", "textures/particles/piranha_eye.png");
@@ -89,11 +92,70 @@ _.extend(Menu.prototype, {
 		this._crosshair.setOffset(0.5, 0.5);
 		this._crosshair.spawn('Default');
 
+		this._topRight = new Widget();
+		this._topRight.setSize(93, 95);
+		this._topRight.setTranslation(560, -280, 0);
+		this._topRight.setDiffuseMap('textures/ui/GUI/gui_corner_piece.png');
+		this._topRight.setEffect('effects/cull_none.effect');
+		this._topRight.setTechnique('Diffuse');
+		this._topRight.setOffset(0.5, 0.5);
+		this._topRight.spawn("Default");
+
+		this._topLeft = new Widget();
+		this._topLeft.setSize(93, 95);
+		this._topLeft.setTranslation(-560, -280, 0);
+		this._topLeft.setDiffuseMap('textures/ui/GUI/gui_corner_piece.png');
+		this._topLeft.setEffect('effects/cull_none.effect');
+		this._topLeft.setTechnique('Diffuse');
+		this._topLeft.setOffset(0.5, 0.5);
+		this._topLeft.setScale(-1, 1);
+		this._topLeft.spawn("Default");
+
+		this._bottomLeft = new Widget();
+		this._bottomLeft.setSize(93, 95);
+		this._bottomLeft.setTranslation(-560, 280, 0);
+		this._bottomLeft.setDiffuseMap('textures/ui/GUI/gui_corner_piece.png');
+		this._bottomLeft.setEffect('effects/cull_none.effect');
+		this._bottomLeft.setTechnique('Diffuse');
+		this._bottomLeft.setOffset(0.5, 0.5);
+		this._bottomLeft.setScale(-1, -1);
+		this._bottomLeft.spawn("Default");
+
+		this._bottomRight = new Widget();
+		this._bottomRight.setSize(93, 95);
+		this._bottomRight.setTranslation(560, 280, 0);
+		this._bottomRight.setDiffuseMap('textures/ui/GUI/gui_corner_piece.png');
+		this._bottomRight.setEffect('effects/cull_none.effect');
+		this._bottomRight.setTechnique('Diffuse');
+		this._bottomRight.setOffset(0.5, 0.5);
+		this._bottomRight.setScale(1, -1);
+		this._bottomRight.spawn("Default");
+
+		this._healthBar = new Widget();
+		this._healthBar.setSize(199, 31);
+		this._healthBar.setTranslation(0, -280, 0);
+		this._healthBar.setDiffuseMap('textures/ui/GUI/gui_health_bar_border.png');
+		this._healthBar.setEffect('effects/cull_none.effect');
+		this._healthBar.setTechnique('Diffuse');
+		this._healthBar.setOffset(0.5, 0.5);
+		this._healthBar.spawn("Default");
+
+		this._healthBarFill = new Widget();
+		this._healthBarFill.setSize(190, 24);
+		this._healthBarFill.setTranslation(95, -280, 0);
+		this._healthBarFill.setDiffuseMap('textures/ui/GUI/gui_health_bar_fill.png');
+		this._healthBarFill.setEffect('effects/cull_none.effect');
+		this._healthBarFill.setTechnique('Diffuse');
+		this._healthBarFill.setOffset(1, 0.5);
+		this._healthBarFill.spawn("Default");
+
 		Game.gravity = Vector2D.construct(0, 5000);
 	},
 
 	update: function (dt)
 	{
+		dt = 0.016;
+
 		Menu._super.update.call(this);
 
 		var mousePos = Mouse.position(MousePosition.Screen);
@@ -109,6 +171,8 @@ _.extend(Menu.prototype, {
     	mousePos = Vector2D.multiply(mousePos, Vector2D.construct(res.w, res.h));
     	mousePos = Vector2D.sub(mousePos, Vector2D.construct(res.w / 2, res.h / 2));
 		this._crosshair.setTranslation(mousePos.x, mousePos.y);
+
+		this._healthBarFill.setSize((this._worldMap._player._health / 20) * 190, 24);
 
 		this._worldMap.update(dt);
 	},
