@@ -23,7 +23,6 @@ _.extend(Scenery.prototype, {
 		this.setBlend(1, 1, 1);
 		this.setTranslation(this._position.x, this._position.y);
 		this._texture = undefined;
-		this._rotationSpeed = 0;
 	},
 
 	setPosition: function(x, y)
@@ -42,15 +41,15 @@ _.extend(Scenery.prototype, {
 		depth = Math.max(depth, 0);
 		depth = Math.min(depth, this._maxDepth - 1);
 		this._depth = depth;
-		this.setZ(-10 - depth);
+		this.setZ(-10 - depth - this._zOffset);
 		var r = depth / this._maxDepth;
 		this.setScale(1 - r, 1 - r);
 		this.setUniform(Uniform.Float, "Depth", r);
-	},
 
-	depth: function()
-	{
-		return this._depth;
+		if (this._depth + this._zOffset < 0)
+		{
+			this.setUniform(Uniform.Float, "Depth", -1);
+		}
 	},
 
 	texture: function()
@@ -65,7 +64,7 @@ _.extend(Scenery.prototype, {
 
 	update: function(dt)
 	{
-		this.rotateBy(0, 0, this._rotationSpeed);
+		this.rotateBy(0, 0, this._rotationSpeed * dt);
 		var t = Game.camera.translation();
 		var r = this._depth / this._maxDepth;
 

@@ -45,7 +45,7 @@ float4 PS(VOut input) : SV_TARGET
     clip((1.0f - coords) - 0.001);
 
     float4 avg = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    float filterSize = 8.0f;
+    float filterSize = 16.0f;
     float count = 0.0f;
 
     float4 col = Target.Sample(Sampler, coords);
@@ -65,20 +65,14 @@ float4 PS(VOut input) : SV_TARGET
     float delta = round(half_y) - half_y;
     float delta_squared = delta * delta;
 
-    float gray = (avg.r + avg.g + avg.b) / 3.0f;
-    if (gray > 0.3f)
-    {
-    	col.rgb += (gray - 0.3f) * 0.7f;
-    }
+    col.rgb += avg.rgb * 0.75;
+    col.rgb = saturate(col.rgb);
+    col.rgb /= 1.5;
 
     if (delta_squared < 0.1) 
     {
        return col;
     } 
-
-    col /= 1.4f;
-    col.g *= 1.8f;
-    col.r *= 0.8f;
 
     col.rgb *= Flicker.x;
 
