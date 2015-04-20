@@ -65,6 +65,7 @@ _.extend(WorldMap.prototype, {
 		this._player.initialise();
 
 		this._enemies = [];
+		//this._enemies.push(new Enemy());
 		this.load();
 	},
 
