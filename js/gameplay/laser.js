@@ -62,6 +62,7 @@ _.extend(Laser.prototype, {
 
 	update: function (blocks, dt)
 	{
+		return;
 		if (this._endPoint !== false)
 		{
 			var angle = Math.atan2(this._position.y - this._endPoint.pos.y, this._position.x - this._endPoint.pos.x);
