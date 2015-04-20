@@ -69,8 +69,6 @@ _.extend(WorldMap.prototype, {
 
 		this._enemies = [];
 		this.load();
-
-		this._enemies.push(new EnemyRay(this, Math.randomRange(-1000, 1000), Math.randomRange(-400, 400)));
 	},
 
 	sceneryTextures: function()
@@ -154,6 +152,15 @@ _.extend(WorldMap.prototype, {
 			this._scenery.splice(this._scenery.indexOf(moveable), 1);
 			return;
 		}
+
+		idx = this._lasers.indexOf(moveable);
+
+		if (idx !== -1)
+		{
+			moveable._base.destroy();
+			this._lasers.splice(this._lasers.indexOf(moveable), 1);
+			return;
+		}
 	},
 
 	addParticle: function(particle)
@@ -206,7 +213,7 @@ _.extend(WorldMap.prototype, {
 
 		for (var i = this._lasers.length - 1; i >= 0; i--)
 		{
-			this._lasers[i].update(this._blocks, dt);
+			this._lasers[i].update(this._blocks, this._player, dt);
 		}
 
 		if (this._editing == true)
@@ -332,12 +339,19 @@ _.extend(WorldMap.prototype, {
 			this._pufferFish[i].destroy();
 		}
 
+		for (var i = 0; i < this._lasers.length; ++i)
+		{
+			this._lasers[i].destroy();
+			this._lasers[i]._base.destroy();
+		}
+
 		this._enemies.length = 0;
 		this._particles.length = 0;
 		this._blocks.length = 0;
 		this._scenery.length = 0;
 		this._moveables.length = 0;
 		this._pufferFish.length = 0;
+		this._lasers.length = 0;
 	},
 
 	load: function()

@@ -117,7 +117,7 @@ var Player = function(map, parent)
 	this._acceleration = 4000;
 	this._maxVelocity = Vector2D.construct(800, 2000);
 	this._position = Vector2D.construct(0, -300);
-	this._jumpHeight = 1200;
+	this._jumpHeight = 1900;
 	this._hurtForce = Vector2D.construct(800, -1200);
 	this._margin = 10;
 	this._wobbleSpeed = 20;
@@ -320,6 +320,11 @@ _.extend(Player.prototype, {
 		this._magnitude = mag;
 		this._shakeDuration = duration;
 		this._shakeTimer = 0;
+	},
+
+	velocity: function()
+	{
+		return this._velocity;
 	},
 
 	move: function(dt, enemies, map)

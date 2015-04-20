@@ -33,6 +33,7 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/player/hammer_head.png");
 		ContentManager.load("texture", "textures/player/weapons.png");
 		ContentManager.load("texture", "textures/laser.png");
+		ContentManager.load("texture", "textures/laser_base.png");
 		ContentManager.load("texture", "textures/camera_gradient.png");
 		ContentManager.load("texture", "textures/ui/crosshair.png");
 		ContentManager.load("texture", "textures/particles/piranha_jaw.png");

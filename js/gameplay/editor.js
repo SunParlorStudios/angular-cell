@@ -122,7 +122,7 @@ _.extend(Editor.prototype, {
 		*/
 
 		// CREATE LASER
-		if (Mouse.isPressed(MouseButton.Right) && this._tool == ToolType.Laser)
+		if (Mouse.isPressed(MouseButton.Right) && this._tool == ToolType.Laser && this._creatingLaser == false)
 		{
 			this._creatingLaser = true;
 			this._laser = this._map.createMoveable(p.x, p.y, MoveableType.Laser);
