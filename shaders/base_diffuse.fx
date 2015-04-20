@@ -54,7 +54,14 @@ float4 PS(VOut input) : SV_TARGET
 	float y = (input.texcoord.y * AnimationCoords.w) + AnimationCoords.y;
 	float2 coords = float2(x, y);
 	float4 diffuse = TexDiffuse.Sample(Sampler, coords);
+	float4 rim = TexDiffuse.Sample(Sampler, coords + float2(-0.0005f, 0.0005f));
+	rim.a *= Alpha;
 	diffuse.rgb *= input.colour.rgb * Blend;
 	diffuse.a *= Alpha;
+
+	if (diffuse.a < rim.a - 0.1)
+	{
+		return float4(0, 1, 1, smoothstep(1, 0, rim.a / 2));
+	}
 	return diffuse;
 }

@@ -45,6 +45,11 @@ _.extend(Scenery.prototype, {
 		var r = depth / this._maxDepth;
 		this.setScale(1 - r, 1 - r);
 		this.setUniform(Uniform.Float, "Depth", r);
+
+		if (this._depth + this._zOffset < 0)
+		{
+			this.setUniform(Uniform.Float, "Depth", -1);
+		}
 	},
 
 	texture: function()

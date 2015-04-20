@@ -124,6 +124,7 @@ _.extend(WorldMap.prototype, {
 
 	update: function(dt)
 	{
+		this._background.setBlend(50 / 255, 180 / 255, 180 / 255)
 		var ct = Game.camera.translation();
 		var z = Game.camera.zoom();
 		this._background.setTranslation(ct.x, ct.y);
