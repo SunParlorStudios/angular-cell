@@ -51,6 +51,11 @@ _.extend(Piranha.prototype, {
 		return this.translation();
 	},
 
+	canHurt: function()
+	{
+		return this._knockTimer >= 1;
+	},
+
 	hurt: function()
 	{
 		if (this._knockTimer < 1)
@@ -96,6 +101,11 @@ _.extend(Piranha.prototype, {
 		{
 			this._knockTimer += dt * 2;
 			this._knockTimer = Math.min(this._knockTimer, 1);
+			this.setAlpha(Math.abs(Math.sin(this._knockTimer * 10)));
+		}
+		else
+		{
+			this.setAlpha(1);
 		}
 
 		var p = player.translation();

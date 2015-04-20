@@ -32,10 +32,6 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/player/player_sheet.png");
 		ContentManager.load("texture", "textures/player/hammer_head.png");
 		ContentManager.load("texture", "textures/player/weapons.png");
-		ContentManager.load("texture", "textures/Environment/BG_Fish_Tank.png");
-		ContentManager.load("texture", "textures/Environment/Fish_Tank.png");
-		ContentManager.load("texture", "textures/Environment/BG_Color.png");
-		ContentManager.load("texture", "textures/Environment/Camera_Gradient.png");
 		ContentManager.load("texture", "textures/laser.png");
 		ContentManager.load("texture", "textures/camera_gradient.png");
 		ContentManager.load("texture", "textures/ui/crosshair.png");
@@ -43,6 +39,13 @@ _.extend(Menu.prototype, {
 		ContentManager.load("texture", "textures/particles/piranha_mouth.png");
 		ContentManager.load("texture", "textures/particles/piranha_eye.png");
 		ContentManager.load("texture", "textures/particles/piranha_body.png");
+		ContentManager.load("texture", "textures/particles/puff_a.png");
+		ContentManager.load("texture", "textures/particles/puff_b.png");
+		ContentManager.load("texture", "textures/particles/hit_a.png");
+		ContentManager.load("texture", "textures/particles/hit_b.png");
+		ContentManager.load("texture", "textures/ray/ray.png");
+		ContentManager.load("texture", "textures/ray/ray_tail.png");
+		ContentManager.load("texture", "textures/ray/ray_spike.png");
 		ContentManager.load("anim", "animations/player_walk.anim");
 		ContentManager.load("anim", "animations/player_punch.anim");
 		ContentManager.load("anim", "animations/player_death.anim");

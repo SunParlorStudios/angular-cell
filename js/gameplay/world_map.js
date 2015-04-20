@@ -1,5 +1,6 @@
 require("js/gameplay/editor");
 require("js/gameplay/piranha");
+require("js/gameplay/enemy_ray");
 
 Enum("MoveableType", [
 	"Block",
@@ -67,8 +68,9 @@ _.extend(WorldMap.prototype, {
 		this._player.initialise();
 
 		this._enemies = [];
-
 		this.load();
+
+		this._enemies.push(new EnemyRay(this, Math.randomRange(-1000, 1000), Math.randomRange(-400, 400)));
 	},
 
 	sceneryTextures: function()
