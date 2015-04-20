@@ -69,6 +69,8 @@ _.extend(Menu.prototype, {
 		this._worldMap = new WorldMap();
 		this._worldMap.initialise();
 
+		WM = this._worldMap;
+
 		this._gradient = new Widget();
 		this._gradient.setSize(1280, 360);
 		this._gradient.setDiffuseMap("textures/camera_gradient.png");

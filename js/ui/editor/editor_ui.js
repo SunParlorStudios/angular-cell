@@ -3,7 +3,8 @@ require("js/ui/editor/texture_widget");
 Enum("ToolType", [
 	"Block",
 	"Scenery",
-	"Enemy"]);
+	"Enemy",
+	"Laser"]);
 
 var testUI = testUI || false;
 
@@ -18,10 +19,11 @@ var EditorUI = EditorUI || function(editor, root)
 	this._toolData = [
 		{path: this._path + "block_object.png", type: ToolType.Block},
 		{path: this._path + "scenery_object.png", type: ToolType.Scenery},
-		{path: this._path + "enemy_object.png", type: ToolType.Enemy}
+		{path: this._path + "enemy_object.png", type: ToolType.Enemy},
+		{path: this._path + "empty.png", type: ToolType.Laser}
 	];
 	this._texturePanel = undefined;
-	this._numTools = 3;
+	this._numTools = this._toolData.length;
 	this._tools = [];
 	this._metrics = {
 		button: {
@@ -42,6 +44,8 @@ _.extend(EditorUI.prototype, {
 		ContentManager.load("texture", "textures/ui/editor/block_object.png");
 		ContentManager.load("texture", "textures/ui/editor/scenery_object.png");
 		ContentManager.load("texture", "textures/ui/editor/enemy_object.png");
+		ContentManager.load("texture", "textures/ui/editor/empty.png");
+
 
 		this._inputArea = new Widget(this._root);
 		this._frame = new Widget(this._root);

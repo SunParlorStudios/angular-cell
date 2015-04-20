@@ -3,12 +3,15 @@ require("js/gameplay/piranha");
 
 Enum("MoveableType", [
 	"Block",
-	"Scenery"]);
+	"Scenery",
+	"Laser"]);
 
 var WorldMap = WorldMap || function()
 {
 	this._blocks = [];
 	this._scenery = [];
+
+	this._lasers = [];
 
 	this._moveables = [];
 	this._particles = [];
@@ -64,7 +67,7 @@ _.extend(WorldMap.prototype, {
 		this._player.initialise();
 
 		this._enemies = [];
-		//this._enemies.push(new Enemy());
+
 		this.load();
 	},
 
@@ -111,9 +114,21 @@ _.extend(WorldMap.prototype, {
 				this._scenery.push(moveable);
 				this._moveables.push(moveable);
 			break;
+
+			case MoveableType.Laser:
+				moveable = new Laser(x, y, this._editMode === true);
+				this._lasers.push(moveable);
+				this._moveables.push(moveable);
+				break;
+
 		}
 		
 		return moveable;
+	},
+
+	createLaser: function ()
+	{
+		
 	},
 
 	removeMoveable: function(moveable, type)
@@ -178,6 +193,7 @@ _.extend(WorldMap.prototype, {
 					{
 						this._moveables[i].spawnPoints();
 					}
+
 					this._editing = true;
 					this._editor.show();
 				}
@@ -185,6 +201,11 @@ _.extend(WorldMap.prototype, {
 		}
 		
 		RenderTargets.default.setUniform(Uniform.Float, "Flicker", Math.random() * 0.3);
+
+		for (var i = this._lasers.length - 1; i >= 0; i--)
+		{
+			this._lasers[i].update(this._blocks, dt);
+		}
 
 		if (this._editing == true)
 		{
@@ -230,6 +251,7 @@ _.extend(WorldMap.prototype, {
 		var save = {}
 		save.blocks = [];
 		save.scenery = [];
+		save.lasers = [];
 
 		var t, s;
 
@@ -265,6 +287,17 @@ _.extend(WorldMap.prototype, {
 				depth: moveable.depthNoZ(),
 				rotationSpeed: moveable.rotationSpeed(),
 				zOffset: moveable.zOffset()
+			});
+		}
+
+		var t, s;
+		for (var i = 0; i < this._lasers.length; ++i)
+		{
+			moveable = this._lasers[i];
+
+			save.lasers.push({
+				position: moveable._position,
+				direction: moveable._direction
 			});
 		}
 
@@ -334,6 +367,16 @@ _.extend(WorldMap.prototype, {
 			obj.setDepth(moveable.depth === undefined ? 0 : moveable.depth);
 			obj.setRotationSpeed(moveable.rotationSpeed === undefined ? 0 : moveable.rotationSpeed);
 			obj.setZOffset(moveable.zOffset === undefined ? 0 : moveable.zOffset);
+		}
+
+		if (json.lasers)
+		{
+			for (var i = 0; i < json.lasers.length; i++)
+			{
+				moveable = json.lasers[i];
+				obj = this.createMoveable(moveable.position.x, moveable.position.y, MoveableType.Laser);
+				obj.constructLaser(moveable.position, moveable.direction, this._blocks);
+			}
 		}
 
 		Log.success("Loaded the map");

@@ -95,7 +95,8 @@ _.extend(Editor.prototype, {
 			{
 				if (this._selected !== undefined)
 				{
-					this._selected.resetBlend();
+					this._selected.resetBlend()
+
 					this._selected = undefined;
 				}
 			}
@@ -113,6 +114,47 @@ _.extend(Editor.prototype, {
 		this._zoom = Math.min(this._zoom, 1);
 		this._zoom = Math.max(this._zoom, 0.1);
 
+
+		/**
+		*
+		* LASERS
+		*
+		*/
+
+		// CREATE LASER
+		if (Mouse.isPressed(MouseButton.Right) && this._tool == ToolType.Laser)
+		{
+			this._creatingLaser = true;
+			this._laser = this._map.createMoveable(p.x, p.y, MoveableType.Laser);
+			this._origin = p;
+		}
+
+		// UPDATE LASER
+		if (this._creatingLaser)
+		{
+			var endPoint = p;
+			var dir = Vector2D.normalise(Vector2D.sub(endPoint, this._origin));
+			this._laser.constructLaser(this._origin, dir, this._map.blocks());
+		}
+
+		// CAST LASER
+		if (Mouse.isReleased(MouseButton.Right) && this._tool == ToolType.Laser)
+		{
+			this._creatingLaser = false;
+			var endPoint = p;
+			var dir = Vector2D.normalise(Vector2D.sub(endPoint, this._origin));
+
+			this._laser.constructLaser(this._origin, dir, this._map.blocks());
+
+			this._laser = undefined;
+		}
+
+		/**
+		*
+		*
+		* END OF LASERS
+		*
+		*/
 
 		if (Mouse.isPressed(MouseButton.Middle))
 		{
