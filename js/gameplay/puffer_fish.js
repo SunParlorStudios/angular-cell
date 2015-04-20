@@ -51,6 +51,9 @@ _.extend(PufferFish.prototype, {
 
 	update: function (targets, blocks, dt)
 	{
+		if (this._gone)
+			return;
+
 		this.move(targets, dt);
 
 		this.resolveCollisions(blocks, dt);
@@ -116,7 +119,7 @@ _.extend(PufferFish.prototype, {
 		}
 	},
 
-	updateVisuals: function(target, dt)
+	updateVisuals: function(targets, dt)
 	{
 		var t = this._position;
 
@@ -139,6 +142,14 @@ _.extend(PufferFish.prototype, {
 			{
 				this._explosionTimer += dt;
 				this._size = Math.lerp(this._minimum, this._maxSize, this._explosionTimer / this._explosionMax);
+
+				var shake = Math.shake(3, this._explosionTimer / this._explosionMax);
+				var ct = Game.camera.translation();
+
+				if (this._explosionTimer > this._explosionMax)
+					this._explosionTimer = this._explosionMax;
+				
+				Game.camera.setTranslation(ct.x + shake.x, ct.y + shake.y, ct.z);
 
 				if (this._size > this._maxSize)
 				{
@@ -164,7 +175,18 @@ _.extend(PufferFish.prototype, {
 						));
 
 						if (this._implosionTimer / this._implosionMax > 1)
+						{
+							this._gone = true;
 							this._size = 0;
+						}
+					}
+
+					for (var i = 0; i < targets.length; i++)
+					{
+						if (Math.distance(targets[i].position().x, targets[i].position().y, this.position().x, this.position().y) < this._size / 2)
+						{
+							targets[i].hurt(10, this);
+						}
 					}
 				}
 
@@ -179,15 +201,7 @@ _.extend(PufferFish.prototype, {
 
 	isDead: function ()
 	{
-		if (this._dead)
-		{
-			if (this._deathTimer <= this._deathMax)
-				return false;
-			else
-				return true;
-		}
-
-		return false;
+		return !!this._gone;
 	},
 
 	removeYourself: function ()

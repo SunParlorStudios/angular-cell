@@ -21,6 +21,8 @@ var WorldMap = WorldMap || function()
 
 	for (var i = 0; i < this._sceneryTextures.length; ++i)
 	{
+		if (this._sceneryTextures[i] == "textures/scenery/Thumbs.db")
+			continue;
 		ContentManager.load("texture", this._sceneryTextures[i]);
 	}
 
@@ -54,7 +56,7 @@ _.extend(WorldMap.prototype, {
 		this._player.initialise();
 
 		this._enemies = [];
-		//this._enemies.push(new Enemy());
+		this._enemies.push(new Enemy());
 		this.load();
 	},
 
@@ -185,11 +187,11 @@ _.extend(WorldMap.prototype, {
 		{
 			this._pufferFish[i].update(this._enemies, this._blocks, dt);
 
-			//if(this._pufferFish[i].isDead())
-			//{
-				//this._pufferFish[i].removeYourself();
+			if(this._pufferFish[i].isDead())
+			{
+				this._pufferFish[i].removeYourself();
 				//this._pufferFish.pop();
-			//}
+			}
 		}
 	},
 

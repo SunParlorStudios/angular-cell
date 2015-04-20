@@ -1,5 +1,7 @@
 Enum('Weapon', [
-	'HammerHead']);
+	'None',
+	'HammerHead',
+	'SwordFish']);
 
 require('js/gameplay/puffer_fish');
 
@@ -36,8 +38,10 @@ var Player = function(map, parent)
 
 	this._weaponBeingUsed = false;
 	this._weaponInUse = 0;
-	this._weaponTimer = 0;
+	this._hammerHeadTimer = 0;
 	this._hammerHeadMax = 0.4;
+	this._swordFishTimer = 0;
+	this._swordFishMax = 0.6;
 
 	this._pufferThrowMax = 0.2;
 	this._pufferThrowTimer = this._pufferThrowMax;
@@ -54,6 +58,8 @@ var Player = function(map, parent)
 	this._weapon.setOffset(0.5, 0.5);
 	this._weapon.setTranslation(0, -90, 99);
 	this._weapon.spawn("Default");
+
+	this._currentWeapon = Weapon.SwordFish;
 }
 
 _.inherit(Player, Quad);
@@ -76,6 +82,7 @@ _.extend(Player.prototype, {
 		this._hurtAnimation = new SpriteAnimation("animations/player_hurt.anim", "textures/player/player_sheet.png");
 
 		this._hammerHeadAnimation = new SpriteAnimation("animations/weapon_hammer_head.anim", "textures/player/hammer_head.png");
+		this._swordFishAnimation = new SpriteAnimation("animations/weapon_sword_fish.anim", "textures/player/weapons.png");
 		this._weaponEmptyAnimation = new SpriteAnimation("animations/weapon_empty.anim", "textures/player/hammer_head.png");
 		
 		this.setAnimation(this._walkAnimation);
@@ -88,10 +95,6 @@ _.extend(Player.prototype, {
 
 		this._weapon.setAnimation(this._weaponEmptyAnimation);
 		this._weaponEmptyAnimation.play();
-
-		this._weapon.setRotation(0, 0, 0.12);
-
-		//this.switchWeapon();
 	},
 
 	size: function()
@@ -149,16 +152,48 @@ _.extend(Player.prototype, {
 	useWeapon: function ()
 	{
 		this._weaponBeingUsed = true;
-		this._weaponTimer = 0;
 
-		this._weapon.setAnimation(this._hammerHeadAnimation);
-		this._hammerHeadAnimation.setFrame(0);
-		this._hammerHeadAnimation.setSpeed(5);
-		this._hammerHeadAnimation.play();
+		switch (this._currentWeapon)
+		{
+			case Weapon.SwordFish:
+				this._swordFishTimer = 0;
 
-		this.setAnimation(this._attackAnimation);
-		this._attackAnimation.setSpeed(5);
-		this._attackAnimation.play();
+				this._weapon.setRotation(0, 0, 0);
+				this._weapon.setTranslation(0, 0, 0);
+				this._weapon.setSize(256, 256);
+				this._weapon.setOffset(0, 0.5);
+				this._weapon.setDiffuseMap('textures/player/weapons.png');
+
+				this._weapon.setAnimation(this._swordFishAnimation);
+				this._swordFishAnimation.setFrame(0);
+				this._swordFishAnimation.setSpeed(5);
+				this._swordFishAnimation.play();
+
+				this.setAnimation(this._attackAnimation);
+				this._attackAnimation.setFrame(0);
+				this._attackAnimation.setSpeed(4);
+				this._attackAnimation.play();
+				break;
+			case Weapon.HammerHead:
+				this._hammerHeadTimer = 0;
+
+				this._weapon.setRotation(0, 0, 0.12);
+				this._weapon.setTranslation(0, -90, 99);
+				this._weapon.setOffset(0.5, 0.5);
+				this._weapon.setSize(512, 256);
+				this._weapon.setDiffuseMap("textures/player/hammer_head.png");
+
+				this._weapon.setAnimation(this._hammerHeadAnimation);
+				this._hammerHeadAnimation.setFrame(0);
+				this._hammerHeadAnimation.setSpeed(5);
+				this._hammerHeadAnimation.play();
+
+				this.setAnimation(this._attackAnimation);
+				this._attackAnimation.setFrame(0);
+				this._attackAnimation.setSpeed(5);
+				this._attackAnimation.play();
+				break;
+		}
 	},
 
 	throwPuffer: function ()
@@ -211,6 +246,16 @@ _.extend(Player.prototype, {
 					this.setAnimation(this._walkAnimation);
 				}
 
+				if (Keyboard.isPressed(Key[1]))
+				{
+					this._currentWeapon = Weapon.HammerHead;
+				}
+
+				if (Keyboard.isPressed(Key[2]))
+				{
+					this._currentWeapon = Weapon.SwordFish;
+				}
+
 				if (Mouse.isPressed(MouseButton.Left))
 				{
 					this.useWeapon();
@@ -223,16 +268,16 @@ _.extend(Player.prototype, {
 			}
 			else
 			{
-				if (this._weaponTimer < this._hammerHeadMax)
+				if (this._hammerHeadTimer < this._hammerHeadMax)
 				{
-					this._weaponTimer += dt;
-					if (this._weaponTimer > this._hammerHeadMax * 0.5)
+					this._hammerHeadTimer += dt;
+					if (this._hammerHeadTimer > this._hammerHeadMax * 0.5)
 					{
 						for (var i = 0; i < enemies.length; i++)
 						{
 							if ((enemies[i].position().x < this._position.x && this.scale().x < 0) || (enemies[i].position().x > this._position.x && this.scale().x > 0))
 							{
-								if (Math.distance(enemies[i].position().x, enemies[i].position().y, this.position().x, this.position().y) < 126)
+								if (Math.distance(enemies[i].position().x, enemies[i].position().y, this.position().x, this.position().y) < 256)
 								{
 									this._weaponHit = true;
 									enemies[i].hurt(10, this);
@@ -240,6 +285,41 @@ _.extend(Player.prototype, {
 							}
 						}
 					}
+				}
+				else if (this._swordFishTimer < 0.3)
+				{
+					this._swordFishTimer += dt;
+
+					var maxSize = 256;
+					var minSize = 0;
+
+					var size = Math.lerp(minSize, maxSize, Math.easeOutQuadratic((this._swordFishTimer) / 0.1, 0, 1, 1));
+
+					if (this._swordFishTimer >= 0.1)
+					{
+						this._attackAnimation.stop(0);
+
+						for (var i = 0; i < enemies.length; i++)
+						{
+							if ((enemies[i].position().x < this._position.x && this.scale().x < 0) || (enemies[i].position().x > this._position.x && this.scale().x > 0))
+							{
+								if (Math.distance(enemies[i].position().x, enemies[i].position().y, this.position().x, this.position().y) < 256)
+								{
+									this._weaponHit = true;
+									enemies[i].hurt(10, this);
+								}
+							}
+						}
+
+						size = Math.lerp(maxSize, minSize, Math.easeInQuadratic((this._swordFishTimer - 0.1) / 0.3, 0, 1, 1))
+					}
+
+					if (size < minSize)
+					{
+						size = 0;
+					}
+
+					this._weapon.setSize(size, (size / maxSize) * 56 + 200);
 				}
 				else if (this._pufferThrowTimer < this._pufferThrowMax)
 				{
@@ -260,7 +340,7 @@ _.extend(Player.prototype, {
 								this._position,
 								Vector2D.construct(
 									Math.cos(a) * dist * 7 * -1,
-									Math.sin(a) * dist * 5 * -1
+									Math.sin(a) * dist * 7 * -1
 								)
 							)
 						);
@@ -271,13 +351,10 @@ _.extend(Player.prototype, {
 					this._weaponBeingUsed = false;
 
 					this._hammerHeadAnimation.stop();
+					this._swordFishAnimation.stop();
 					this._weapon.setAnimation(this._weaponEmptyAnimation);
 					this._weaponEmptyAnimation.play();
 					this._weaponEmptyAnimation.setSpeed(0);
-
-					//this._attackAnimation.stop();
-					//this.setAnimation(this._walkAnimation);
-					//this._walkAnimation.play();
 				}
 			}
 		}

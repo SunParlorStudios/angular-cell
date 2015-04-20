@@ -231,8 +231,11 @@ _.extend(Enemy.prototype, {
 		this.setTranslation(t.x, t.y + this._margin, 2);
 	},
 
-	hurt: function (damage, source)
+	hurt: function (damage, source, modifier)
 	{
+		if (modifier == undefined)
+			modifier = 1;
+
 		if (!this._hurting)
 		{
 			this._health -= damage;
@@ -273,14 +276,14 @@ _.extend(Enemy.prototype, {
 				if (source.position().x > this._position.x)
 				{
 					this._velocity = {
-						x: -this._hurtForce.x,
+						x: -this._hurtForce.x * modifier,
 						y: this._hurtForce.y
 					};
 				}
 				else
 				{
 					this._velocity = {
-						x: this._hurtForce.x,
+						x: this._hurtForce.x * modifier,
 						y: this._hurtForce.y
 					};
 				}

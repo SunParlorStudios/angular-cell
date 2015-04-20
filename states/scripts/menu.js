@@ -44,6 +44,7 @@ _.extend(Menu.prototype, {
 		ContentManager.load("anim", "animations/player_hurt.anim");
 		ContentManager.load("anim", "animations/puffer_fish.anim");
 		ContentManager.load("anim", "animations/weapon_hammer_head.anim");
+		ContentManager.load("anim", "animations/weapon_sword_fish.anim");
 		ContentManager.load("anim", "animations/weapon_empty.anim");
 		ContentManager.load("shader", "shaders/fog.fx");
 		ContentManager.load("effect", "effects/fog.effect");
