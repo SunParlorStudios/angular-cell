@@ -118,7 +118,7 @@ var EnemyRay = EnemyRay || function(map, x, y, parent)
 {
 	EnemyRay._super.constructor.call(this, parent);
 	this._dead = false;
-	this._maxDistance = 640;
+	this._maxDistance = 5000000000;
 	this._speed = 400;
 	this._maxSpeed = this._speed;
 	this._speed = 0;
@@ -147,7 +147,7 @@ _.extend(EnemyRay.prototype, {
 		this._wobble = 0;
 		this._wobbleHeight = 100;
 		this._wobbleSpeed = 2;
-		this._health = 8;
+		this._health = 2;
 		this._knockTimer = 1;
 		this._lockedOn = false;
 	},
@@ -234,7 +234,7 @@ _.extend(EnemyRay.prototype, {
 		{
 			if (dist < 16)
 			{
-				player.hurt(16, this);
+				player.hurt(2, this);
 			}
 
 			var a = Math.atan2(p.y - t.y, p.x - t.x);

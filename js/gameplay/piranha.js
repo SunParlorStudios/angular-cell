@@ -4,7 +4,7 @@ var Piranha = Piranha || function(map, x, y, parent)
 {
 	Piranha._super.constructor.call(this, parent);
 	this._dead = false;
-	this._maxDistance = 640;
+	this._maxDistance = 5000000000;
 	this._speed = 700;
 	this._maxSpeed = this._speed;
 	this._speed = 0;
@@ -39,7 +39,7 @@ _.extend(Piranha.prototype, {
 		this._wobble = 0;
 		this._wobbleHeight = 100;
 		this._wobbleSpeed = 10;
-		this._health = 4;
+		this._health = 1;
 		this._knockTimer = 1;
 		this._lockedOn = false;
 
@@ -136,7 +136,7 @@ _.extend(Piranha.prototype, {
 		{
 			if (dist < 16)
 			{
-				player.hurt(8, this);
+				player.hurt(1, this);
 			}
 			this.setBlend(1, 0, 0);
 			this.setAnimation(this._swimAnimation);

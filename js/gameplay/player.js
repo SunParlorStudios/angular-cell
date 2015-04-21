@@ -567,7 +567,7 @@ _.extend(Player.prototype, {
 		{
 			var r = dist / this._maxCameraDistance;
 			var mx = (t.x - ct.x) * r * dt * this._camSpeed;
-			var my = (t.y - 100 - ct.y) * r * dt * this._camSpeed;
+			var my = (t.y - 70 - ct.y) * r * dt * this._camSpeed;
 			Game.camera.translateBy(mx, my, 0, 1);
 			this._camPos.x += mx;
 			this._camPos.y += my;
@@ -587,10 +587,10 @@ _.extend(Player.prototype, {
 		}
 		else
 		{
-			if (Game.camera.zoom() > 0.75)
+			if (Game.camera.zoom() > 0.375)
 			{
 				var z = Game.camera.zoom() - dt;
-				Game.camera.setZoom(Math.max(z, 0.75));
+				Game.camera.setZoom(Math.max(z, 0.375));
 			}
 		}
 		var ratio = Math.abs(this._velocity.x) / this._maxVelocity.x;
@@ -700,12 +700,22 @@ _.extend(Player.prototype, {
 				this._hurting = true;
 				this._hurtTimer = 0;
 
-				if (source.position().x > this._position.x)
+				if (source !== null)
 				{
-					this._velocity = {
-						x: -this._hurtForce.x,
-						y: this._hurtForce.y
-					};
+					if (source.position().x > this._position.x)
+					{
+						this._velocity = {
+							x: -this._hurtForce.x,
+							y: this._hurtForce.y
+						};
+					}
+					else
+					{
+						this._velocity = {
+							x: this._hurtForce.x,
+							y: this._hurtForce.y
+						};
+					}
 				}
 				else
 				{

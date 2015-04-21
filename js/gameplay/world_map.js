@@ -45,6 +45,8 @@ var WorldMap = WorldMap || function()
 	}
 
 	this._background = undefined;
+
+	this._wave = 0;
 }
 
 _.extend(WorldMap.prototype, {
@@ -170,6 +172,38 @@ _.extend(WorldMap.prototype, {
 
 	update: function(dt)
 	{
+		if (this._enemies.length <= 0)
+		{
+			this._wave++;
+
+			for (var i = 0; i < this._wave % 4 * 2; i++)
+			{
+				var randomEnemy = Math.round(Math.random()) == 1 ? EnemyRay : Piranha;
+				this._enemies.push(new randomEnemy(this, Math.random() * 3500 - 1750, Math.random() * 2500 - 1250));
+			}
+		}
+
+		if (this._player.position().y > 2000)
+		{
+			this._player.hurt(5, null);
+		}
+
+		if (this._player._health <= 0)
+		{
+			this._player.destroy();
+			this._player = new Player(this);
+			this._player.initialise();
+
+			this._wave = 0;
+
+			for (var i = this._enemies.length - 1; i >= 0; i--)
+			{
+				this._enemies[i].removeYourself();
+				this._enemies.pop();
+			}
+		}
+
+
 		this._background.setBlend(50 / 255, 180 / 255, 180 / 255)
 		var ct = Game.camera.translation();
 		var z = Game.camera.zoom();

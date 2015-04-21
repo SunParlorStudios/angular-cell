@@ -174,6 +174,9 @@ _.extend(Menu.prototype, {
 
 		this._healthBarFill.setSize((this._worldMap._player._health / 20) * 190, 24);
 
+		if (this._healthBarFill.size().x < 0)
+			this._healthBarFill.setSize(0, 24);
+
 		this._worldMap.update(dt);
 	},
 
